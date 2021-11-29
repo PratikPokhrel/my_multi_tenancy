@@ -46,8 +46,11 @@
         public const string AuthenticationAuthority = "AUTHENTICATION_AUTHORITY";
 
         public const string DbServer = "Server";
-        public const string DbUser = "user";
-        public const string DbPassword = "password";
+        public const string DbHost = "Host";
+        public const string DbUser = "User";
+        public const string DbUserID = "User ID";
+        public const string Password = nameof(Password);
+        public const string DbPort = "Port";
 
         /// <summary>
         /// Address of the swagger client
@@ -159,6 +162,8 @@
         /// claim name to store tenant id in the database
         /// </summary>
         public const string TenantClaim = "tenant_id";
+
+        public const string MsSqlConnectionStringFormat = "Server=XXXX;Database=XXX;user=erp;password=ABCXX;MultipleActiveResultSets=true";
 
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.Common;
 using DeviceManager.Api.Configuration.DatabaseTypes;
 using DeviceManager.Api.Configuration.Settings;
 using DeviceManager.Api.Constants;
@@ -23,7 +24,9 @@ namespace DeviceManager.Api.Data.Management
         private readonly ConnectionSettings connectionOptions;
 
         private readonly IDataBaseManager dataBaseManager;
-        private readonly IDatabaseType databaseType;
+        private readonly string tenant1 = "3249f843-d4a3-4d9c-b0ff-bc1a9d3cd5e1";
+        private readonly string tenant2 = "4249f843-d4a3-4d9c-b0ff-bc1a9d3cd5e1";
+        private readonly string tenant3 = "5249f843-d4a3-4d9c-b0ff-bc1a9d3cd5e1";
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ContextFactory"/> class.
@@ -31,17 +34,13 @@ namespace DeviceManager.Api.Data.Management
         /// <param name="httpContentAccessor">The HTTP content accessor.</param>
         /// <param name="connectionOptions">The connection options.</param>
         /// <param name="dataBaseManager">The data base manager.</param>
-        /// <param name="databaseType">Type of the database</param>
-        /// <param name="dataSeeder">Data seeder</param>
         public ContextFactory(IHttpContextAccessor httpContentAccessor,
             ConnectionSettings connectionOptions,
-            IDataBaseManager dataBaseManager,
-            IDatabaseType databaseType)
+            IDataBaseManager dataBaseManager)
         {
             this.httpContext = httpContentAccessor.HttpContext;
             this.connectionOptions = connectionOptions;
             this.dataBaseManager = dataBaseManager;
-            this.databaseType = databaseType;
         }
 
         /// <inheritdoc />
@@ -65,8 +64,6 @@ namespace DeviceManager.Api.Data.Management
                 ValidateHttpContext();
 
                 string tenantId = this.httpContext.Request.Headers[TenantIdFieldName].ToString();
-                tenantId=Guid.NewGuid().ToString(); 
-
                 ValidateTenantId(tenantId);
 
                 return tenantId;
@@ -77,47 +74,86 @@ namespace DeviceManager.Api.Data.Management
         {
             ValidateDefaultConnection();
 
+            var tenant = GetTenant(tenantId);
+
+            IDatabaseType dbType =tenant.DatabaseType==(int)DatabaseType.MsSql? new MsSql():new Postgres();
             // 1. Create Connection String Builder using Default connection string
-            var connectionBuilder = databaseType.GetConnectionBuilder(connectionOptions.DefaultConnection);
+
+            DbConnectionStringBuilder connectionBuilder = dbType.GetConnectionBuilder(tenant.DatabaseType == (int)DatabaseType.MsSql
+                                                                ? DefaultConstants.MsSqlConnectionStringFormat 
+                                                                : connectionOptions.DefaultConnection);
+
 
             // 2. Remove old Database info from connection string
-            connectionBuilder.Remove(DatabaseFieldKeyword);
-            connectionBuilder.Remove(DefaultConstants.DbServer);
-            connectionBuilder.Remove(DefaultConstants.DbUser);
-            connectionBuilder.Remove(DefaultConstants.DbPassword);
+            connectionBuilder.Clear();
 
-            var tenant=GetTenant(tenantId);
             if (tenant.DatabaseType == (int)DatabaseType.MsSql)
             {
                 connectionBuilder.Add(DatabaseFieldKeyword, tenant.Database);
+                connectionBuilder.Add(DefaultConstants.Password, tenant.Password.Trim());
                 connectionBuilder.Add(DefaultConstants.DbServer, tenant.Server);
                 connectionBuilder.Add(DefaultConstants.DbUser, tenant.User);
-                connectionBuilder.Add(DefaultConstants.DbPassword, tenant.Password);
+
+
                 // 4. Create DbContextOptionsBuilder with new Database name
                 var contextOptionsBuilder = new DbContextOptionsBuilder<AccountContext>();
-                databaseType.SetConnectionString(contextOptionsBuilder, connectionBuilder.ConnectionString);
+                dbType.SetConnectionString(contextOptionsBuilder, connectionBuilder.ConnectionString);
                 return new AccountContext(contextOptionsBuilder.Options);
+            }
+            else if (tenant.DatabaseType == (int)DatabaseType.Postgres)
+            {
+                connectionBuilder.Add(DatabaseFieldKeyword, tenant.Database);
+                connectionBuilder.Add(DefaultConstants.DbUserID, tenant.User);
+                connectionBuilder.Add(DefaultConstants.Password, tenant.Password);
+                connectionBuilder.Add(DefaultConstants.DbHost, tenant.Server);
+                connectionBuilder.Add(DefaultConstants.DbPort, tenant.Port);
+
+
+                // 4. Create DbContextOptionsBuilder with new Database name
+                var contextOptionsBuilder = new DbContextOptionsBuilder<DeviceContext>();
+                dbType.SetConnectionString(contextOptionsBuilder, connectionBuilder.ConnectionString);
+                return new DeviceContext(contextOptionsBuilder.Options);
             }
             else
-            {
-                var contextOptionsBuilder = new DbContextOptionsBuilder<AccountContext>();
-                databaseType.SetConnectionString(contextOptionsBuilder, connectionBuilder.ConnectionString);
-                return new AccountContext(contextOptionsBuilder.Options);
-            }
+                throw new ArgumentNullException("Database Type");
         }
 
-        public static Tenant GetTenant(string tenantId)
+        public Tenant GetTenant(string tenantId)
         {
-            return new Tenant
+            if (tenantId == tenant1)
             {
-                Server = "3.109.16.202",
-                Database = "accounts-dev-devbranch",
-                User = "erp",
-                Password = "h+&xQGP=JEaQ4Nsy",
-                DatabaseType =0
-            };
+                return new Tenant
+                {
+                    Server = "3.109.16.202",
+                    Database = "accounts-dev-devbranch",
+                    User = "erp",
+                    Password = "h+&xQGP=JEaQ4Nsy",
+                    DatabaseType = 0
+                };
+            }
+            else if(tenantId == tenant2)
+                return new Tenant
+                {
+                    Server = "3.109.16.202",
+                    Database = "accounts-dev-daraz",
+                    User = "erp",
+                    Password = "h+&xQGP=JEaQ4Nsy",
+                    DatabaseType = 0
+                };
+            else
+                return new Tenant
+                {
+                    Server = "localhost",
+                    Database = "movie_db",
+                    User = "postgres",
+                    Password = "Admin",
+                    Port= "5432",
+                    DatabaseType = 1
+                };
+
         }
 
+ 
         private void ValidateDefaultConnection()
         {
             if (string.IsNullOrEmpty(this.connectionOptions.DefaultConnection))

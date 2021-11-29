@@ -12,6 +12,7 @@ namespace DeviceManager.Api.Configuration.Settings
         /// Gets or sets the database type (No sql or MsSql)
         /// </summary>
         public DatabaseType DatabaseType { get; set; }
+        public bool AllowMultipleConnection { get; set; }
 
         /// <summary>
         /// Gets or sets the default connection.

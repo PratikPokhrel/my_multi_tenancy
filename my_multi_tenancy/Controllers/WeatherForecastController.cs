@@ -31,7 +31,8 @@ namespace my_multi_tenancy.Controllers
         public IActionResult Get()
         {
             var rng = new Random();
-            var a= _unitOfWork.GetRepository<Account>().GetAll();
+            var a= _unitOfWork.GetRepository<Movie>().GetAll();
+            var counut = a.Count();
             return Ok(a);
         }
     }

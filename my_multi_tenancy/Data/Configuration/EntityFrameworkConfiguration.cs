@@ -35,10 +35,26 @@ namespace DeviceManager.Api.Configuration
 
             databaseTypeInstance.EnableDatabase(services, connectionOptions);
 
-            // Entity framework configuration
-            services.AddDbContext<DeviceContext>(options => 
+            if (connectionOptions.AllowMultipleConnection)
+            {
+                services.AddDbContext<DeviceContext>(options =>
                 databaseTypeInstance.GetContextBuilder(options, connectionOptions, connectionString));
-            services.AddScoped<IDbContext, DeviceContext>();
+                services.AddScoped<IDbContext, DeviceContext>();
+
+
+                services.AddDbContext<AccountContext>(options =>
+                databaseTypeInstance.GetContextBuilder(options, connectionOptions, connectionString));
+                services.AddScoped<IDbContext, AccountContext>();
+
+
+            }
+            else
+            {
+                // Entity framework configuration
+                services.AddDbContext<DeviceContext>(options =>
+                    databaseTypeInstance.GetContextBuilder(options, connectionOptions, connectionString));
+                services.AddScoped<IDbContext, DeviceContext>();
+            }
         }
 
         /// <summary>
@@ -67,7 +83,9 @@ namespace DeviceManager.Api.Configuration
         {
             var databaseInterfaceType = typeof(IDatabaseType);
             var instanceType = connectionOptions.DatabaseType.ToString();
-            var instance = databaseInterfaceType.Assembly.GetTypes().FirstOrDefault(x =>databaseInterfaceType.IsAssignableFrom(x) && string.Equals(instanceType, x.Name, StringComparison.OrdinalIgnoreCase));
+            var instance = databaseInterfaceType.Assembly.GetTypes()
+                                                .FirstOrDefault(x =>databaseInterfaceType.IsAssignableFrom(x) 
+                                                                   && string.Equals(instanceType, x.Name, StringComparison.OrdinalIgnoreCase));
             services.AddSingleton<IDatabaseType>((IDatabaseType)Activator.CreateInstance(instance));
         }
 

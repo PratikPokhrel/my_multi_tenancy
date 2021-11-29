@@ -9,6 +9,8 @@ namespace my_multi_tenancy.Data.Context
         public string Database { get; set; }
         public string User { get; set; }
         public string Password { get; set; }
+        public string Port { get; set; }
+
         /// <summary>
         /// DataBase Type
         /// 1=Mssql,2=Postgres
