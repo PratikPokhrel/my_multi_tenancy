@@ -20,13 +20,8 @@ namespace DeviceManager.Api.Data.Management
         private const string TenantIdFieldName = DefaultConstants.TenantId;
         private const string DatabaseFieldKeyword = DefaultConstants.Database;
         private readonly HttpContext httpContext;
-
         private readonly ConnectionSettings connectionOptions;
-
         private readonly IDataBaseManager dataBaseManager;
-        private readonly string tenant1 = "3249f843-d4a3-4d9c-b0ff-bc1a9d3cd5e1";
-        private readonly string tenant2 = "4249f843-d4a3-4d9c-b0ff-bc1a9d3cd5e1";
-        private readonly string tenant3 = "5249f843-d4a3-4d9c-b0ff-bc1a9d3cd5e1";
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ContextFactory"/> class.
@@ -34,9 +29,7 @@ namespace DeviceManager.Api.Data.Management
         /// <param name="httpContentAccessor">The HTTP content accessor.</param>
         /// <param name="connectionOptions">The connection options.</param>
         /// <param name="dataBaseManager">The data base manager.</param>
-        public ContextFactory(IHttpContextAccessor httpContentAccessor,
-            ConnectionSettings connectionOptions,
-            IDataBaseManager dataBaseManager)
+        public ContextFactory(IHttpContextAccessor httpContentAccessor,ConnectionSettings connectionOptions,IDataBaseManager dataBaseManager)
         {
             this.httpContext = httpContentAccessor.HttpContext;
             this.connectionOptions = connectionOptions;
@@ -65,7 +58,6 @@ namespace DeviceManager.Api.Data.Management
 
                 string tenantId = this.httpContext.Request.Headers[TenantIdFieldName].ToString();
                 ValidateTenantId(tenantId);
-
                 return tenantId;
             }
         }
@@ -74,7 +66,7 @@ namespace DeviceManager.Api.Data.Management
         {
             ValidateDefaultConnection();
 
-            var tenant = GetTenant(tenantId);
+            Tenant tenant = dataBaseManager.GetTenant(tenantId);
 
             IDatabaseType dbType =tenant.DatabaseType==(int)DatabaseType.MsSql? new MsSql():new Postgres();
             // 1. Create Connection String Builder using Default connection string
@@ -115,72 +107,31 @@ namespace DeviceManager.Api.Data.Management
                 return new DeviceContext(contextOptionsBuilder.Options);
             }
             else
-                throw new ArgumentNullException("Database Type");
-        }
-
-        public Tenant GetTenant(string tenantId)
-        {
-            if (tenantId == tenant1)
             {
-                return new Tenant
-                {
-                    Server = "3.109.16.202",
-                    Database = "accounts-dev-devbranch",
-                    User = "erp",
-                    Password = "h+&xQGP=JEaQ4Nsy",
-                    DatabaseType = 0
-                };
+                ArgumentNullException argumentNullException = new("Database Type");
+                throw argumentNullException;
             }
-            else if(tenantId == tenant2)
-                return new Tenant
-                {
-                    Server = "3.109.16.202",
-                    Database = "accounts-dev-daraz",
-                    User = "erp",
-                    Password = "h+&xQGP=JEaQ4Nsy",
-                    DatabaseType = 0
-                };
-            else
-                return new Tenant
-                {
-                    Server = "localhost",
-                    Database = "movie_db",
-                    User = "postgres",
-                    Password = "Admin",
-                    Port= "5432",
-                    DatabaseType = 1
-                };
-
         }
-
  
         private void ValidateDefaultConnection()
         {
             if (string.IsNullOrEmpty(this.connectionOptions.DefaultConnection))
-            {
                 throw new ArgumentNullException(nameof(this.connectionOptions.DefaultConnection));
-            }
         }
 
         private void ValidateHttpContext()
         {
             if (this.httpContext == null)
-            {
                 throw new ArgumentNullException(nameof(this.httpContext));
-            }
         }
 
         private static void ValidateTenantId(string tenantId)
         {
             if (tenantId == null)
-            {
                 throw new ArgumentNullException(nameof(tenantId));
-            }
 
             if (!Guid.TryParse(tenantId, out Guid tenantGuid))
-            {
                 throw new ArgumentNullException(nameof(tenantId));
-            }
         }
     }
 }

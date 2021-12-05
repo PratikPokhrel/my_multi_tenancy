@@ -1,3 +1,5 @@
+using my_multi_tenancy.Data.Context;
+
 namespace DeviceManager.Api.Data.Management
 {
     /// <summary>
@@ -11,5 +13,7 @@ namespace DeviceManager.Api.Data.Management
         /// <param name="tenantId">The tenant identifier.</param>
         /// <returns>db name</returns>
         string GetDataBaseName(string tenantId);
+
+        Tenant GetTenant(string tenantId);
     }
 }

@@ -41,6 +41,25 @@ namespace DeviceManager.Api.Data.Management
             return this.dbSet.Add(entity).State;
         }
 
+
+        /// <inheritdoc />
+        public virtual IQueryable<T> TableNoTraking
+        {
+            get
+            {
+                return dbSet.AsNoTracking();
+            }
+        }
+
+        /// <inheritdoc />
+        public virtual IQueryable<T> Table
+        {
+            get
+            {
+                return dbSet;
+            }
+        }
+
         /// <inheritdoc />
         public T Get<TKey>(TKey id)
         {

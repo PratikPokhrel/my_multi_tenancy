@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using DeviceManager.Api.Constants;
+using my_multi_tenancy.Data.Context;
 
 namespace DeviceManager.Api.Data.Management
 {
@@ -42,5 +44,42 @@ namespace DeviceManager.Api.Data.Management
 
             return dataBaseName;
         }
+
+        public Tenant GetTenant(string tenantId)
+        {
+            return tenants.FirstOrDefault(e=>e.Id==Guid.Parse(tenantId));
+        }
+
+        List<Tenant> tenants = new List<Tenant>
+        {
+            new Tenant
+                {
+                   Id=Guid.Parse("3249f843-d4a3-4d9c-b0ff-bc1a9d3cd5e1"),
+                    Server = "3.109.16.202",
+                    Database = "accounts-dev-devbranch",
+                    User = "erp",
+                    Password = "h+&xQGP=JEaQ4Nsy",
+                    DatabaseType = 0
+                },
+            new Tenant
+                {
+                   Id=Guid.Parse("4249f843-d4a3-4d9c-b0ff-bc1a9d3cd5e1"),
+                    Server = "3.109.16.202",
+                    Database = "accounts-dev-daraz",
+                    User = "erp",
+                    Password = "h+&xQGP=JEaQ4Nsy",
+                    DatabaseType = 0
+                },
+            new Tenant
+                {
+                   Id=Guid.Parse("5249f843-d4a3-4d9c-b0ff-bc1a9d3cd5e1"),
+                    Server = "localhost",
+                    Database = "movie_db",
+                    User = "postgres",
+                    Password = "Admin",
+                    Port= "5432",
+                    DatabaseType = 1
+                }
+        };
     }
 }

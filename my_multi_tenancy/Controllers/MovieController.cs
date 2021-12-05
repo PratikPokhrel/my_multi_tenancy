@@ -11,29 +11,26 @@ namespace my_multi_tenancy.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class WeatherForecastController : ControllerBase
+    public class MovieController : ControllerBase
     {
         private static readonly string[] Summaries = new[]
         {
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
         };
 
-        private readonly ILogger<WeatherForecastController> _logger;
+        private readonly ILogger<MovieController> _logger;
         private readonly IUnitOfWork _unitOfWork;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger,IUnitOfWork unitOfWork)
+        public MovieController(ILogger<MovieController> logger,IUnitOfWork unitOfWork)
         {
             _logger = logger;
             _unitOfWork = unitOfWork;
         }
 
         [HttpGet]
-        public IActionResult Get()
+        public ActionResult<IEnumerable<Movie>> Get()
         {
-            var rng = new Random();
-            var a= _unitOfWork.GetRepository<Movie>().GetAll();
-            var counut = a.Count();
-            return Ok(a);
+            return Ok(_unitOfWork.GetRepository<Movie>().GetAll().ToList());
         }
     }
 }

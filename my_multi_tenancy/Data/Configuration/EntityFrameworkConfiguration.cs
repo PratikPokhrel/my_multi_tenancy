@@ -86,7 +86,7 @@ namespace DeviceManager.Api.Configuration
             var instance = databaseInterfaceType.Assembly.GetTypes()
                                                 .FirstOrDefault(x =>databaseInterfaceType.IsAssignableFrom(x) 
                                                                    && string.Equals(instanceType, x.Name, StringComparison.OrdinalIgnoreCase));
-            services.AddSingleton<IDatabaseType>((IDatabaseType)Activator.CreateInstance(instance));
+            services.AddSingleton((IDatabaseType)Activator.CreateInstance(instance));
         }
 
     }

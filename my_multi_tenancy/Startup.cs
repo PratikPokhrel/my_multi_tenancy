@@ -8,9 +8,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using my_multi_tenancy.Data.SwaggerConfig;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace my_multi_tenancy
@@ -29,10 +32,7 @@ namespace my_multi_tenancy
         {
             ConfigurationOptions.ConfigureService(services, Configuration);
             services.AddControllers();
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "my_multi_tenancy", Version = "v1" });
-            });
+            services.ConfigureSwagger();
 
             EntityFrameworkConfiguration.ConfigureService(services, Configuration);
             IocContainerConfiguration.ConfigureService(services, Configuration);
@@ -57,6 +57,33 @@ namespace my_multi_tenancy
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+            });
+        }
+    }
+    public static class SwaggerCOnfiguration
+    {
+        public static void ConfigureSwagger(this IServiceCollection services)
+        {
+            // Register the Swagger generator, defining 1 or more Swagger documents
+            services.AddSwaggerGen(c =>
+            {
+            //https://thecodebuzz.com/jwt-authorization-token-swagger-open-api-asp-net-core-3-0/
+            c.OperationFilter<AddSwaggerHeaderParameter>();
+                c.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Title = "REST services for accounts.",
+                    Version = "v1",
+                    Description = "Through this API you can access accounts services",
+                    Contact = new OpenApiContact()
+                    {
+                        Email = "dev@rigonepal.com",
+                        Name = "Rigo Technologies",
+                        Url = new Uri("https://rigonepal.com/")
+                    }
+                });
+                var xmlCommentsFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlCommentsFullPath = Path.Combine(AppContext.BaseDirectory, xmlCommentsFile);
+                //c.IncludeXmlComments(xmlCommentsFullPath);
             });
         }
     }

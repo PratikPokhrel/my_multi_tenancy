@@ -20,6 +20,11 @@ namespace DeviceManager.Api.Data.Management
         /// <returns>Entity</returns>
         T Get<TKey>(TKey id);
 
+
+        IQueryable<T> TableNoTraking { get; }
+
+        IQueryable<T> Table { get; }
+
         /// <summary>
         /// Gets the specified identifier.
         /// </summary>
