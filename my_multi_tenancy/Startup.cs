@@ -1,8 +1,10 @@
-using DeviceManager.Api.Configuration;
+using Core.EF.Data.Configuration;
+using Core.EF.Data.Configuration.Pg;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -15,6 +17,10 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Infrastructure.Ioc;
+using my_multi_tenancy.Middlewares;
+using my_multi_tenancy.FIlters;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace my_multi_tenancy
 {
@@ -30,12 +36,13 @@ namespace my_multi_tenancy
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            ConfigurationOptions.ConfigureService(services, Configuration);
             services.AddControllers();
+            services.AddScoped<IsUserInTenant>();
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+            .AddCookie();
             services.ConfigureSwagger();
-
-            EntityFrameworkConfiguration.ConfigureService(services, Configuration);
-            IocContainerConfiguration.ConfigureService(services, Configuration);
+            //services.AddAndMigrateTenantDatabases();
+            services.ConfigureAppServices(Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -47,13 +54,14 @@ namespace my_multi_tenancy
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "my_multi_tenancy v1"));
             }
-
+            //app.ApplyUserKeyValidation();
             app.UseHttpsRedirection();
 
             app.UseRouting();
-
+            app.UseAuthentication();
             app.UseAuthorization();
 
+           
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
@@ -77,7 +85,7 @@ namespace my_multi_tenancy
                     Contact = new OpenApiContact()
                     {
                         Email = "dev@rigonepal.com",
-                        Name = "Rigo Technologies",
+                        Name = "Rigo Technologies  TenantId=5249f843-d4a3-4d9c-b0ff-bc1a9d3cd5e1",
                         Url = new Uri("https://rigonepal.com/")
                     }
                 });
@@ -85,6 +93,19 @@ namespace my_multi_tenancy
                 var xmlCommentsFullPath = Path.Combine(AppContext.BaseDirectory, xmlCommentsFile);
                 //c.IncludeXmlComments(xmlCommentsFullPath);
             });
+        }
+        public static IServiceCollection AddAndMigrateTenantDatabases(this IServiceCollection services)
+        {
+            string connectionString = "User ID=postgres;Password=Admin;Host=localhost;Port=5432;Database=movies_db;";
+
+            using var scope = services.BuildServiceProvider().CreateScope();
+            var dbContext = scope.ServiceProvider.GetRequiredService<DeviceContext>();
+            dbContext.Database.SetConnectionString(connectionString);
+            if (dbContext.Database.GetMigrations().Count() > 0)
+            {
+                dbContext.Database.Migrate();
+            }
+            return services;
         }
     }
 }

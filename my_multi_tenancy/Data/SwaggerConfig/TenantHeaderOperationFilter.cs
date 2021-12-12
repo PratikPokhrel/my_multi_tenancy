@@ -1,8 +1,8 @@
 ﻿using Swashbuckle.AspNetCore.SwaggerGen;
 using Swashbuckle.AspNetCore.Swagger;
-using DeviceManager.Api.Constants;
 using Microsoft.OpenApi.Models;
 using System.Collections.Generic;
+using Core.Constants;
 
 namespace my_multi_tenancy.Data.SwaggerConfig
 {
@@ -21,18 +21,18 @@ namespace my_multi_tenancy.Data.SwaggerConfig
                 operation.Parameters = new List<OpenApiParameter>();
             }
 
-            operation.Parameters.Add(new OpenApiParameter
-            {
-                Name = DefaultConstants.TenantId,
-                In = ParameterLocation.Header,
-                Required = false,
-                AllowEmptyValue = false,
-                Schema = new OpenApiSchema
-                {
-                    Type = "String",
-                    Title = "Tenant Id"
-                }
-            });
+            //operation.Parameters.Add(new OpenApiParameter
+            //{
+            //    Name = DefaultConstants.TenantId,
+            //    In = ParameterLocation.Header,
+            //    Required = false,
+            //    AllowEmptyValue = false,
+            //    Schema = new OpenApiSchema
+            //    {
+            //        Type = "String",
+            //        Title = "Tenant Id"
+            //    }
+            //});
         }
     }
 }

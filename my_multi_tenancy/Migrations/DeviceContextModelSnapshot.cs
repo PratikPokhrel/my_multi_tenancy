@@ -4,7 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using my_multi_tenancy.Data.Context;
+using Core.EF.Data.Configuration.Pg;
+
+#nullable disable
 
 namespace my_multi_tenancy.Migrations
 {
@@ -15,11 +17,12 @@ namespace my_multi_tenancy.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("Relational:MaxIdentifierLength", 63)
-                .HasAnnotation("ProductVersion", "5.0.10")
-                .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                .HasAnnotation("ProductVersion", "6.0.0")
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            modelBuilder.Entity("my_multi_tenancy.Data.Context.Movie", b =>
+            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("my_multi_tenancy.Data.Entities.Brand", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -30,9 +33,94 @@ namespace my_multi_tenancy.Migrations
                         .HasColumnType("text")
                         .HasColumnName("name");
 
-                    b.HasKey("Id");
+                    b.Property<decimal>("Price")
+                        .HasColumnType("numeric")
+                        .HasColumnName("price");
 
-                    b.ToTable("movie");
+                    b.HasKey("Id")
+                        .HasName("pk_brand");
+
+                    b.ToTable("brand", (string)null);
+                });
+
+            modelBuilder.Entity("my_multi_tenancy.Data.Entities.Employee", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("text")
+                        .HasColumnName("email");
+
+                    b.Property<string>("FirstName")
+                        .HasColumnType("text")
+                        .HasColumnName("first_name");
+
+                    b.Property<string>("LastName")
+                        .HasColumnType("text")
+                        .HasColumnName("last_name");
+
+                    b.HasKey("Id")
+                        .HasName("pk_employee");
+
+                    b.ToTable("employee", (string)null);
+                });
+
+            modelBuilder.Entity("my_multi_tenancy.Data.Entities.Facility", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.HasKey("Id")
+                        .HasName("pk_facility");
+
+                    b.ToTable("facility", (string)null);
+                });
+
+            modelBuilder.Entity("my_multi_tenancy.Data.Entities.Movie", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.HasKey("Id")
+                        .HasName("pk_movie");
+
+                    b.ToTable("movie", (string)null);
+                });
+
+            modelBuilder.Entity("my_multi_tenancy.Data.Entities.Product", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("numeric")
+                        .HasColumnName("price");
+
+                    b.HasKey("Id")
+                        .HasName("pk_product");
+
+                    b.ToTable("product", (string)null);
                 });
 #pragma warning restore 612, 618
         }

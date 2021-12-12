@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using DeviceManager.Api.Constants;
 using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;
 namespace my_multi_tenancy.FIlters
