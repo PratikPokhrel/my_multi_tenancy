@@ -1,17 +1,20 @@
 ﻿using Core.EF.Configs.EntityConfigs;
 using Core.EF.Configs.EntityConfigs.Tenants;
+using Core.EF.Data.Extensions;
+using Core.EF.IdentityModels;
 using Core.Entities;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using my_multi_tenancy.Data.Configuration.Pg.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Core.EF.Data.Context.Default
 {
-    public class DefaultContext : DbContext,IDbContext
+    public class DefaultContext:IdentityDbContext<ApplicationUser, ApplicationRole, Guid, ApplicationUserClaim, ApplicationUserRole, ApplicationUserLogin, ApplicationRoleClaim, ApplicationUserToken>,IDbContext
     {
 
         /// <summary>
@@ -26,6 +29,9 @@ namespace Core.EF.Data.Context.Default
             // TODO: uncomment below line of you are running the application for the first time
             //this.Database.EnsureCreated();
         }
+
+
+        public DbContextType GetContextType => DbContextType.Account;
 
         /// <summary>
         /// Get or sets the devices data model
@@ -52,8 +58,14 @@ namespace Core.EF.Data.Context.Default
             modelBuilder.ApplyConfiguration(new TenantEntityConfiguration());
             modelBuilder.ConvertToSnakeCase();
 
-          
-
+        }
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
+        {
+            ChangeTracker.DetectChanges();
+            ChangeTracker.ProcessModification(Guid.NewGuid());
+            ChangeTracker.ProcessDeletion(Guid.NewGuid());
+            ChangeTracker.ProcessCreation(Guid.NewGuid());
+            return await base.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         }
     }
 }

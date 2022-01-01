@@ -4,6 +4,7 @@ using Core.Constants;
 using Core.EF.Data.Configuration.DatabaseTypes;
 using Core.EF.Data.Configuration.Pg;
 using Core.EF.Data.Context;
+using Core.EF.Data.Extensions;
 using Core.Entities;
 using Core.Infrastructure.Tenancy;
 using DeviceManager.Api.Configuration.DatabaseTypes;
@@ -19,12 +20,9 @@ namespace Core.EF.Data.Configuration.Management
     /// <seealso cref="IContextFactory"/>
     public class ContextFactory : IContextFactory
     {
-        private const string TenantIdFieldName = DefaultConstants.TenantId;
-        private const string DatabaseFieldKeyword = DefaultConstants.Database;
         private readonly HttpContext httpContext;
         private readonly ConnectionSettings connectionOptions;
         private readonly ITenantProvider _tenantProvider;
-        private readonly IDataBaseManager dataBaseManager;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ContextFactory"/> class.
@@ -32,77 +30,50 @@ namespace Core.EF.Data.Configuration.Management
         /// <param name="httpContentAccessor">The HTTP content accessor.</param>
         /// <param name="connectionOptions">The connection options.</param>
         /// <param name="dataBaseManager">The data base manager.</param>
-        public ContextFactory(IHttpContextAccessor httpContentAccessor,ITenantProvider tenantProvider, ConnectionSettings connectionOptions, IDataBaseManager dataBaseManager)
+        public ContextFactory(IHttpContextAccessor httpContentAccessor,ITenantProvider tenantProvider, ConnectionSettings connectionOptions)
         {
             httpContext = httpContentAccessor.HttpContext;
             this.connectionOptions = connectionOptions;
             _tenantProvider = tenantProvider;
-            this.dataBaseManager = dataBaseManager;
         }
 
         /// <inheritdoc />
-        public IDbContext DbContext => ChangeDatabaseNameInConnectionString(Tenant);
+        public IDbContext DbContext => ChangeDbContext(Tenant);
 
         /// <summary>
-        /// Gets tenant id from HTTP header
+        /// Gets Current Tenant
         /// </summary>
-        /// <value>
-        /// The tenant identifier.
-        /// </value>
-        /// <exception cref="ArgumentNullException">
-        /// httpContext
-        /// or
-        /// tenantId
-        /// </exception>
         private Tenant Tenant
         {
             get
             {
                 ValidateHttpContext();
-                Tenant tenant= _tenantProvider.GetTenant();
+                Tenant tenant= _tenantProvider.Tenant;
                 return tenant ?? throw new ArgumentNullException("Not a valid tenant");
             }
         }
 
-        private IDbContext ChangeDatabaseNameInConnectionString(Tenant tenant)
+        private static IDbContext ChangeDbContext(Tenant tenant)
         {
             //ValidateDefaultConnection();
 
 
             IDatabaseType dbType = tenant.DatabaseType == (int)DatabaseType.MsSql ? new MsSql() : new Postgres();
-            // 1. Create Connection String Builder using Default connection string
-
-            DbConnectionStringBuilder connectionBuilder = dbType.GetConnectionBuilder(tenant.DatabaseType == (int)DatabaseType.MsSql
-                                                                ? DefaultConstants.MsSqlConnectionStringFormat
-                                                                : connectionOptions.DefaultConnection);
-
 
             // 2. Remove old Database info from connection string
-            connectionBuilder.Clear();
 
             if (tenant.DatabaseType == (int)DatabaseType.MsSql)
             {
-                connectionBuilder.Add(DatabaseFieldKeyword, tenant.Database);
-                connectionBuilder.Add(DefaultConstants.Password, tenant.Password.Trim());
-                connectionBuilder.Add(DefaultConstants.DbServer, tenant.Server);
-                connectionBuilder.Add(DefaultConstants.DbUser, tenant.User);
-
-
-                // 4. Create DbContextOptionsBuilder with new Database name
+                DbConnectionStringBuilder connectionBuilder = tenant.BuildConnectionString();
+                // 4. Create MSSQL DbContextOptionsBuilder with new Database name
                 var contextOptionsBuilder = new DbContextOptionsBuilder<AccountContext>();
                 dbType.SetConnectionString(contextOptionsBuilder, connectionBuilder.ConnectionString);
                 return new AccountContext(contextOptionsBuilder.Options);
             }
             else if (tenant.DatabaseType == (int)DatabaseType.Postgres)
             {
-                connectionBuilder.Add(DatabaseFieldKeyword, tenant.Database);
-                connectionBuilder.Add(DefaultConstants.DbUserID, tenant.User);
-                connectionBuilder.Add(DefaultConstants.Password, tenant.Password);
-                connectionBuilder.Add(DefaultConstants.DbHost, tenant.Server);
-                connectionBuilder.Add(DefaultConstants.DbPort, tenant.Port);
-
-
-                // 4. Create DbContextOptionsBuilder with new Database name
+                DbConnectionStringBuilder connectionBuilder = tenant.BuildConnectionString();
+                // 4. Create PSQL DbContextOptionsBuilder with new Database name
                 var contextOptionsBuilder = new DbContextOptionsBuilder<DeviceContext>();
                 dbType.SetConnectionString(contextOptionsBuilder, connectionBuilder.ConnectionString);
                 return new DeviceContext(contextOptionsBuilder.Options);

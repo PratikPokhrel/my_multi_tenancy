@@ -1,11 +1,7 @@
 ﻿using Core.EF.Data.Configuration;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using LazyCache;
 
 namespace Infrastructure.Ioc
 {
@@ -16,6 +12,8 @@ namespace Infrastructure.Ioc
             services.ConfigureService(configuration);
             services.ConfigureEFService(configuration);
             services.ConfigureCommonService(configuration);
+            services.ConfigureAuthConfiguration();
+            services.AddLazyCache();
         }
     }
 }

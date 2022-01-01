@@ -22,6 +22,109 @@ namespace Core.EF.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Core.Entities.Branch", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("deleted_by");
+
+                    b.Property<DateTime?>("DeletedOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_on");
+
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_default");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<Guid?>("ModifiedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("modified_by");
+
+                    b.Property<DateTime?>("ModifiedOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_on");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.HasKey("Id")
+                        .HasName("pk_branch");
+
+                    b.ToTable("branch", (string)null);
+                });
+
+            modelBuilder.Entity("Core.Entities.BranchUser", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<Guid>("BranchId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("branch_id");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("deleted_by");
+
+                    b.Property<DateTime?>("DeletedOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_on");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<Guid?>("ModifiedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("modified_by");
+
+                    b.Property<DateTime?>("ModifiedOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_on");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_branch_user");
+
+                    b.HasIndex("BranchId")
+                        .HasDatabaseName("ix_branch_user_branch_id");
+
+                    b.ToTable("branch_user", (string)null);
+                });
+
             modelBuilder.Entity("Core.Entities.Brand", b =>
                 {
                     b.Property<Guid>("Id")
@@ -41,6 +144,131 @@ namespace Core.EF.Migrations
                         .HasName("pk_brand");
 
                     b.ToTable("brand", (string)null);
+                });
+
+            modelBuilder.Entity("Core.Entities.Category", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("deleted_by");
+
+                    b.Property<DateTime?>("DeletedOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_on");
+
+                    b.Property<int?>("DepartmentId")
+                        .HasColumnType("integer")
+                        .HasColumnName("department_id");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<Guid?>("ModifiedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("modified_by");
+
+                    b.Property<DateTime?>("ModifiedOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_on");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.HasKey("Id")
+                        .HasName("pk_category");
+
+                    b.HasIndex("DepartmentId")
+                        .HasDatabaseName("ix_category_department_id");
+
+                    b.ToTable("category", (string)null);
+                });
+
+            modelBuilder.Entity("Core.Entities.CategoryItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("CategoryId")
+                        .HasColumnType("integer")
+                        .HasColumnName("category_id");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.HasKey("Id")
+                        .HasName("pk_category_item");
+
+                    b.HasIndex("CategoryId")
+                        .HasDatabaseName("ix_category_item_category_id");
+
+                    b.ToTable("category_item", (string)null);
+                });
+
+            modelBuilder.Entity("Core.Entities.CategoryItemChildren", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("CategoryItemId")
+                        .HasColumnType("integer")
+                        .HasColumnName("category_item_id");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text")
+                        .HasColumnName("description");
+
+                    b.HasKey("Id")
+                        .HasName("pk_category_item_children");
+
+                    b.HasIndex("CategoryItemId")
+                        .HasDatabaseName("ix_category_item_children_category_item_id");
+
+                    b.ToTable("category_item_children", (string)null);
+                });
+
+            modelBuilder.Entity("Core.Entities.Department", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.HasKey("Id")
+                        .HasName("pk_department");
+
+                    b.ToTable("department", (string)null);
                 });
 
             modelBuilder.Entity("Core.Entities.Employee", b =>
@@ -110,6 +338,10 @@ namespace Core.EF.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_on");
 
+                    b.Property<string>("Icon")
+                        .HasColumnType("text")
+                        .HasColumnName("icon");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
@@ -117,6 +349,10 @@ namespace Core.EF.Migrations
                     b.Property<bool>("IsOldLink")
                         .HasColumnType("boolean")
                         .HasColumnName("is_old_link");
+
+                    b.Property<bool>("IsPaarent")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_paarent");
 
                     b.Property<Guid?>("ModifiedBy")
                         .HasColumnType("uuid")
@@ -133,6 +369,10 @@ namespace Core.EF.Migrations
                     b.Property<int>("Order")
                         .HasColumnType("integer")
                         .HasColumnName("order");
+
+                    b.Property<int>("ParentId")
+                        .HasColumnType("integer")
+                        .HasColumnName("parent_id");
 
                     b.HasKey("Id")
                         .HasName("pk_menu");
@@ -176,6 +416,181 @@ namespace Core.EF.Migrations
                         .HasName("pk_product");
 
                     b.ToTable("product", (string)null);
+                });
+
+            modelBuilder.Entity("Core.Entities.QueryModels.CategoryItemQuery", b =>
+                {
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("CategoryItemName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CategoryName")
+                        .HasColumnType("text");
+
+                    b.ToView(null);
+                });
+
+            modelBuilder.Entity("Core.Entities.ResponseLogs", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("ActionName")
+                        .HasColumnType("text")
+                        .HasColumnName("action_name");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("deleted_by");
+
+                    b.Property<DateTime?>("DeletedOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_on");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<Guid?>("ModifiedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("modified_by");
+
+                    b.Property<DateTime?>("ModifiedOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_on");
+
+                    b.Property<string>("Response")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("response");
+
+                    b.Property<string>("TenantName")
+                        .HasColumnType("text")
+                        .HasColumnName("tenant_name");
+
+                    b.Property<Guid?>("tenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<Guid?>("userId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_response_logs");
+
+                    b.ToTable("response_logs", (string)null);
+                });
+
+            modelBuilder.Entity("Core.Entities.SubDepartment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("DepartmentId")
+                        .HasColumnType("integer")
+                        .HasColumnName("department_id");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.HasKey("Id")
+                        .HasName("pk_sub_department");
+
+                    b.HasIndex("DepartmentId")
+                        .HasDatabaseName("ix_sub_department_department_id");
+
+                    b.ToTable("sub_department", (string)null);
+                });
+
+            modelBuilder.Entity("Core.Entities.BranchUser", b =>
+                {
+                    b.HasOne("Core.Entities.Branch", "Branch")
+                        .WithMany("BranchUser")
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_branch_user_branch_branch_id");
+
+                    b.Navigation("Branch");
+                });
+
+            modelBuilder.Entity("Core.Entities.Category", b =>
+                {
+                    b.HasOne("Core.Entities.Department", "Department")
+                        .WithMany("Category")
+                        .HasForeignKey("DepartmentId")
+                        .HasConstraintName("fk_category_department_department_id");
+
+                    b.Navigation("Department");
+                });
+
+            modelBuilder.Entity("Core.Entities.CategoryItem", b =>
+                {
+                    b.HasOne("Core.Entities.Category", "Category")
+                        .WithMany("CategoryItem")
+                        .HasForeignKey("CategoryId")
+                        .HasConstraintName("fk_category_item_category_category_id");
+
+                    b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("Core.Entities.CategoryItemChildren", b =>
+                {
+                    b.HasOne("Core.Entities.CategoryItem", "CategoryItem")
+                        .WithMany("CategoryItemChildrens")
+                        .HasForeignKey("CategoryItemId")
+                        .HasConstraintName("fk_category_item_children_category_item_category_item_id");
+
+                    b.Navigation("CategoryItem");
+                });
+
+            modelBuilder.Entity("Core.Entities.SubDepartment", b =>
+                {
+                    b.HasOne("Core.Entities.Department", "Department")
+                        .WithMany("SubDepartment")
+                        .HasForeignKey("DepartmentId")
+                        .HasConstraintName("fk_sub_department_department_department_id");
+
+                    b.Navigation("Department");
+                });
+
+            modelBuilder.Entity("Core.Entities.Branch", b =>
+                {
+                    b.Navigation("BranchUser");
+                });
+
+            modelBuilder.Entity("Core.Entities.Category", b =>
+                {
+                    b.Navigation("CategoryItem");
+                });
+
+            modelBuilder.Entity("Core.Entities.CategoryItem", b =>
+                {
+                    b.Navigation("CategoryItemChildrens");
+                });
+
+            modelBuilder.Entity("Core.Entities.Department", b =>
+                {
+                    b.Navigation("Category");
+
+                    b.Navigation("SubDepartment");
                 });
 #pragma warning restore 612, 618
         }

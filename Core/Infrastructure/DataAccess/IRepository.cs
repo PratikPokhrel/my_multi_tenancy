@@ -129,7 +129,7 @@ namespace Core.Infrastructure.DataAccess
         /// <param name="sql"> The raw SQL query. </param>
         /// <param name="parameters"> The values to be assigned to parameters. </param>
         /// <returns>List of entities</returns>
-        //IQueryable<T> FromSql(string sql, params object[] parameters);
+        IQueryable<T> FromSql(string sql, params object[] parameters);
 
         /// <summary>
         /// Gets all and offers to include 2 related tables
@@ -145,6 +145,8 @@ namespace Core.Infrastructure.DataAccess
         /// <param name="entity">The entity.</param>
         /// <returns>The Entity's state</returns>
         T Add(T entity);
+        Task<T> AddAsync(T entity);
+
 
         /// <summary>
         /// Deletes the specified <paramref name="entity"/>
@@ -154,11 +156,25 @@ namespace Core.Infrastructure.DataAccess
         T Delete(T entity);
 
         /// <summary>
+        /// Check If any element exists
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <returns></returns>
+        Task<bool> AnyAsync(Expression<Func<T, bool>> filter = null);
+        /// <summary>
         /// Checks whether a entity matching the <paramref name="predicate"/> exists
         /// </summary>
         /// <param name="predicate">The predicate to filter on</param>
         /// <returns>Whether an entity matching the <paramref name="predicate"/> exists</returns>
         bool Exists(Expression<Func<T, bool>> predicate);
+
+
+        /// <summary>
+        /// Checks whether a entity matching the <paramref name="predicate"/> exists
+        /// </summary>
+        /// <param name="predicate"></param>
+        /// <returns></returns>
+        Task<bool> ExistsAsync(Expression<Func<T, bool>> predicate);
 
         /// <summary>
         /// Updates the specified entity.
@@ -174,5 +190,9 @@ namespace Core.Infrastructure.DataAccess
 
         Task<List<T>> GetAllAsync(Expression<Func<T, bool>> where, bool asNoTracking = false, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null);
         Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>> filter = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null);
+
+        Task<T> GetAsyncTemp(Expression<Func<T, bool>> predicate, params string[] includesStr);
+        Task<List<T>> GetAsyncTempList(Expression<Func<T, bool>> predicate, params string[] includesStr);
+        Task<List<T>> IncludeAsync(IQueryable<T> query, params Expression<Func<T, object>>[] includeProperties);
     }
 }

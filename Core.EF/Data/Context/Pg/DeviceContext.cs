@@ -1,7 +1,9 @@
-﻿using Core.EF.Data.Context;
+﻿using Core.EF.Configs.QueryModelConfigs;
+using Core.EF.Data.Context;
+using Core.EF.Data.Extensions;
 using Core.Entities;
+using eixample.Extensions;
 using Microsoft.EntityFrameworkCore;
-using my_multi_tenancy.Data.Configuration.Pg.Extensions;
 using System;
 
 namespace Core.EF.Data.Configuration.Pg
@@ -31,6 +33,9 @@ namespace Core.EF.Data.Configuration.Pg
         public DbSet<Employee> Employee { get; set; }
         public DbSet<Facility> Facility { get; set; }
         public DbSet<Menu> Menu { get; set; }
+        public DbSet<Category> Category { get; set; }
+        public DbSet<Branch> Branch { get; set; }
+        public DbSet<ResponseLogs> ResponseLogs { get; set; }
 
         /// <summary>
         /// Get or sets the device groups data model
@@ -41,8 +46,13 @@ namespace Core.EF.Data.Configuration.Pg
         /// <param name="modelBuilder">Entity framework model builder before creating database</param>
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
             modelBuilder.ConvertToSnakeCase();
+            modelBuilder.EnableSoftDelete();
+            modelBuilder.ApplyConfiguration(new CategoryItemQueryConfiguration());
         }
+        public DbContextType GetContextType => DbContextType.Account;
+
     }
 
     public class AccountContext : DbContext, IDbContext
@@ -77,6 +87,8 @@ namespace Core.EF.Data.Configuration.Pg
         {
 
         }
+        public DbContextType GetContextType => DbContextType.Account;
+
     }
 
     public class Account

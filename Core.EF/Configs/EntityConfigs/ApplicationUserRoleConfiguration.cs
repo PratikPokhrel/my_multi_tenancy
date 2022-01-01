@@ -13,6 +13,14 @@ namespace Core.EF.Configs.EntityConfigs
             builder.ToTable("UserRole", "dbo");
             builder.Property(e => e.UserId).HasColumnName("UserID");
             builder.Property(e => e.RoleId).HasColumnName("RoleID");
+
+            builder.HasOne(e => e.ApplicationUser)
+                    .WithMany(e => e.ApplicationUserRoles)
+                    .HasForeignKey(e => e.UserId);
+
+            builder.HasOne(e => e.ApplicationRole)
+                   .WithMany(e => e.ApplicationUserRoles)
+                   .HasForeignKey(e => e.RoleId);
         }
     }
 }

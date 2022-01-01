@@ -36,6 +36,7 @@
         /// Name of the Authentication settings section
         /// </summary>
         public const string AuthenticationSettings = nameof(AuthenticationSettings);
+        public const string Tenants = nameof(Tenants);
 
         /// <summary>
         /// 
@@ -166,6 +167,7 @@
         public const string TenantClaim = "tenant_id";
 
         public const string MsSqlConnectionStringFormat = "Server=XXXX;Database=XXX;user=erp;password=ABCXX;MultipleActiveResultSets=true";
+        public const string PSqlConnectionStringFormat = "User ID=postgres;Password=Admin;Host=localhost;Port=5432;Database=multitenant1_dev_db;";
 
     }
 }

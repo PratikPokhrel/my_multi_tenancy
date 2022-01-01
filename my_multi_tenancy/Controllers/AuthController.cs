@@ -1,6 +1,10 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using Core.Dto.Security;
+using Core.EF.IdentityModels;
+using Core.Infrastructure.Tenancy;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -13,10 +17,14 @@ namespace my_multi_tenancy.Controllers
     public class AuthController : Controller
     {
         private readonly IHttpContextAccessor _contextAccessor;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ITenantProvider _tenantProvider;
 
-        public AuthController(IHttpContextAccessor httpContextAccessor)
+        public AuthController(IHttpContextAccessor httpContextAccessor, UserManager<ApplicationUser> userManager, ITenantProvider tenantProvider)
         {
             _contextAccessor = httpContextAccessor;
+            _userManager = userManager;
+            _tenantProvider = tenantProvider;
         }
 
         [HttpPost]
@@ -32,11 +40,28 @@ namespace my_multi_tenancy.Controllers
             return Ok(new { Success = true });
 
         }
+
+        [HttpPost,Route("add-new")]
+        public async Task<ActionResult> AddAsync()
+        {
+            var user = new ApplicationUser
+            {
+                FirstName = "Pratik",
+                LastName = "Pokharel",
+                PassWord = "Admin@123",
+                Email = "ram@rigo.com",
+                UserName = "ram@rigo.com",
+                TenantId=_tenantProvider.TenantId
+            };
+            var identityResult=  await _userManager.CreateAsync(user).ConfigureAwait(false);
+            return Ok(new { Success = true });
+
+        }
         private static ClaimsIdentity CreateIdentity(AppUser user)
         {
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.NameIdentifier, "4249f843-d4a3-4d9c-b0ff-bc1a9d3cd5e1"),
+                new Claim(ClaimTypes.NameIdentifier, "2a26a99c-decc-46b4-ae07-6fab01ed7138"),
                 new Claim(ClaimTypes.Name, user.UserName),
                 new Claim(ClaimTypes.Email, user.UserName)
             };
@@ -44,10 +69,5 @@ namespace my_multi_tenancy.Controllers
             return claimsIdentity;
         }
     }
-
-    public class AppUser
-    {
-        public string UserName { get; set; }
-        public string Email { get; set; }
-    }
+    
 }

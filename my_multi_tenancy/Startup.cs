@@ -1,26 +1,22 @@
-using Core.EF.Data.Configuration;
 using Core.EF.Data.Configuration.Pg;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using my_multi_tenancy.Data.SwaggerConfig;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 using Infrastructure.Ioc;
-using my_multi_tenancy.Middlewares;
 using my_multi_tenancy.FIlters;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Infrastructure.Middlewares;
+using MediatR;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 
 namespace my_multi_tenancy
 {
@@ -37,12 +33,19 @@ namespace my_multi_tenancy
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            services.AddMvc(opt =>
+            {
+                opt.Filters.Add(typeof(ModelStateValidatorAttribute));
+            });
+            services.AddSingleton<IActionContextAccessor,ActionContextAccessor>();
             services.AddScoped<IsUserInTenant>();
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
             .AddCookie();
+
             services.ConfigureSwagger();
             //services.AddAndMigrateTenantDatabases();
             services.ConfigureAppServices(Configuration);
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -56,7 +59,7 @@ namespace my_multi_tenancy
             }
             //app.ApplyUserKeyValidation();
             app.UseHttpsRedirection();
-
+            app.UseMiddleware<ExceptionHandleMiddleware>();
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
@@ -73,6 +76,7 @@ namespace my_multi_tenancy
         public static void ConfigureSwagger(this IServiceCollection services)
         {
             // Register the Swagger generator, defining 1 or more Swagger documents
+          
             services.AddSwaggerGen(c =>
             {
             //https://thecodebuzz.com/jwt-authorization-token-swagger-open-api-asp-net-core-3-0/
@@ -94,18 +98,6 @@ namespace my_multi_tenancy
                 //c.IncludeXmlComments(xmlCommentsFullPath);
             });
         }
-        public static IServiceCollection AddAndMigrateTenantDatabases(this IServiceCollection services)
-        {
-            string connectionString = "User ID=postgres;Password=Admin;Host=localhost;Port=5432;Database=movies_db;";
-
-            using var scope = services.BuildServiceProvider().CreateScope();
-            var dbContext = scope.ServiceProvider.GetRequiredService<DeviceContext>();
-            dbContext.Database.SetConnectionString(connectionString);
-            if (dbContext.Database.GetMigrations().Count() > 0)
-            {
-                dbContext.Database.Migrate();
-            }
-            return services;
-        }
+        
     }
 }

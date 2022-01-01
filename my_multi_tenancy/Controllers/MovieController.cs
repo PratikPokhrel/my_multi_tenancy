@@ -1,7 +1,9 @@
 ﻿using Core.EF.Data.Context;
+using Core.EF.IdentityModels;
 using Core.Entities;
 using Core.Infrastructure.DataAccess;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -13,27 +15,17 @@ using System.Threading.Tasks;
 
 namespace my_multi_tenancy.Controllers
 {
-    [ApiController]
-    [Route("[controller]")]
-    [IsUserInTenant]
-    public class MovieController : ControllerBase
+    [Route("api/movies")]
+    public class MovieController : BaseApiController
     {
-        private static readonly string[] Summaries = new[]
-        {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };
-
         private readonly ILogger<MovieController> _logger;
         private readonly IDefaultUnitOfWork _unitOfWork;
         private readonly IUnitOfWork _uow;
-        private readonly IHttpContextAccessor _accessor;
-
-        public MovieController(ILogger<MovieController> logger, IDefaultUnitOfWork unitOfWork, IUnitOfWork uow, IHttpContextAccessor accessor)
+        public MovieController(ILogger<MovieController> logger, IDefaultUnitOfWork unitOfWork, IUnitOfWork uow)
         {
             _logger = logger;
             _unitOfWork = unitOfWork;
             _uow = uow;
-            _accessor = accessor;
         }
 
         [HttpGet]
@@ -43,10 +35,10 @@ namespace my_multi_tenancy.Controllers
         }
 
         [HttpPost]
-        public ActionResult<int> Post([FromBody] Movie movie)
+        public async Task<ActionResult<int>> Post([FromBody] Movie movie)
         {
-            var res = _unitOfWork.GetRepository<Movie>().Add(movie);
-            _unitOfWork.Commit();
+            var res = _uow.GetRepository<Movie>().Add(movie);
+           await _uow.CommitAsync().ConfigureAwait(false);
             return Ok(res);
         }
 

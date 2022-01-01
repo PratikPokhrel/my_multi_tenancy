@@ -1,5 +1,7 @@
 ﻿using Core.Entities;
 using Core.Infrastructure.DataAccess;
+using Core.Infrastructure.Tenancy;
+using Core.Security.User;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,21 +12,25 @@ namespace Services.Services
 {
     public class TenantService : ITenantService
     {
-        private readonly IDefaultUnitOfWork _defaultUnitOfWork;
+        private readonly IDefaultUnitOfWork _uow;
+        private readonly IApplictionUserManager _userManager;
+        private readonly ITenantProvider _tenantProvider;
 
-        public TenantService(IDefaultUnitOfWork defaultUnitOfWork)
+        public TenantService(IDefaultUnitOfWork uow,IApplictionUserManager userManager,ITenantProvider tenantProvider)
         {
-            _defaultUnitOfWork = defaultUnitOfWork;
+            _uow = uow;
+            _userManager = userManager;
+            _tenantProvider = tenantProvider;
         }
         public async Task<IEnumerable<Tenant>> GetAllAsync()
         {
-          return  await _defaultUnitOfWork.GetRepository<Tenant>()
+          return  await _uow.GetRepository<Tenant>()
                                           .GetAllAsync(orderBy:e=>e.OrderBy(x=>x.Server)).ConfigureAwait(false);
         }
 
-        public bool IsUserInTenant(Guid userId)
+        public async Task<bool> IsUserInTenantAsync(Guid userId)
         {
-            return false;
+          return await  _userManager.IsUserInTenantAsync(userId,_tenantProvider.TenantId).ConfigureAwait(false);
         }
     }
 }

@@ -57,7 +57,7 @@ namespace Core.EF.Data.Context
         ///     A task that represents the asynchronous save operation. The task result contains the
         ///     number of state entries written to the database.
         /// </returns>
-        Task<int> SaveChangesAsync(CancellationToken cancellationToken);
+        Task<int> SaveChangesAsync(CancellationToken cancellationToken=default);
 
         /// <summary>
         ///     Asynchronously saves all changes made in this context to the database.
@@ -106,5 +106,21 @@ namespace Core.EF.Data.Context
         /// <param name="entity">The entity to get the entry for.</param>
         /// <returns></returns>
         EntityEntry<TEntity> Entry<TEntity>([NotNull] TEntity entity) where TEntity : class;
+
+        /// <summary>
+        /// Provides access to information and operations for entity instances this context
+        //     is tracking.
+        /// </summary>
+        ChangeTracker ChangeTracker { get; }
+
+        DbContextType GetContextType { get; }
+
+    }
+
+    public enum DbContextType
+    {
+        Pg = 0,
+        Account = 1,
+        HM = 2
     }
 }

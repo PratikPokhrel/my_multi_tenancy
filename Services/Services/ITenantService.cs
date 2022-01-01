@@ -10,6 +10,6 @@ namespace Services.Services
     public interface ITenantService
     {
         Task<IEnumerable<Tenant>> GetAllAsync();
-        bool IsUserInTenant(Guid userId);
+        Task<bool> IsUserInTenantAsync(Guid userId);
     }
 }

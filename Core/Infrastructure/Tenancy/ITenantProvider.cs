@@ -9,6 +9,14 @@ namespace Core.Infrastructure.Tenancy
 {
     public interface ITenantProvider
     {
-        Tenant GetTenant();
+        /// <summary>
+        /// Current Tenant
+        /// </summary>
+        Tenant Tenant { get; }
+
+        /// <summary>
+        /// Current Tenant Id
+        /// </summary>
+        Guid TenantId { get; }
     }
 }

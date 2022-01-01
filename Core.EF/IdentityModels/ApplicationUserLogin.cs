@@ -11,5 +11,8 @@ namespace Core.EF.IdentityModels
         public ApplicationUserRole() : base()
         {
         }
+
+        public virtual ApplicationUser ApplicationUser{ get; set; }
+        public virtual ApplicationRole ApplicationRole{ get; set; }
     }
 }

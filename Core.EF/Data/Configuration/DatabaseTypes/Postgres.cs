@@ -5,6 +5,7 @@ using Core.EF.Data.Configuration.DatabaseTypes;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Npgsql;
 
 namespace DeviceManager.Api.Configuration.DatabaseTypes
 {
@@ -21,7 +22,7 @@ namespace DeviceManager.Api.Configuration.DatabaseTypes
         /// <inherit/>
         public DbConnectionStringBuilder GetConnectionBuilder(string connectionString)
         {
-            return new Npgsql.NpgsqlConnectionStringBuilder(connectionString);
+            return new NpgsqlConnectionStringBuilder(connectionString);
         }
 
         /// <inherit/>

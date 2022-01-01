@@ -10,6 +10,8 @@ namespace Core.EF.Configs.EntityConfigs
         {
             builder.ToTable(name: "Role", schema: "dbo");
             builder.Property(e => e.Id).HasColumnName("ID");
+
+          
         }
     }
 }

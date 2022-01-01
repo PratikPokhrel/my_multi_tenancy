@@ -1,4 +1,6 @@
-﻿using System.Text.RegularExpressions;
+﻿using Microsoft.Extensions.Localization;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace Core.Infrastructure
 {
@@ -14,6 +16,10 @@ namespace Core.Infrastructure
 
         public static string Excerpt(this string str, int limit)
             => string.IsNullOrEmpty(str) ? string.Empty : str.Length > limit ? $"{str[..limit]}..." : str;
+
+        public static List<string> ToStringList(this string str)=>new(){str};
+        public static List<string> ToStringList(this LocalizedString str) => new() { str.ToString() };
+
 
         public static string UppercaseFirst(this string str)
         {

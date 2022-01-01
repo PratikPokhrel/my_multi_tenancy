@@ -1,15 +1,21 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
+using System.Threading.Tasks;
 using Core.Constants;
 using Core.EF.Data.Configuration.DatabaseTypes;
 using Core.EF.Data.Configuration.Pg;
 using Core.EF.Data.Context;
 using Core.EF.Data.Context.Default;
+using Core.EF.Data.Extensions;
+using Core.EF.Seed;
+using Core.Entities;
+using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 
 namespace Core.EF.Data.Configuration
 {
@@ -30,6 +36,7 @@ namespace Core.EF.Data.Configuration
 
             // Database connection settings
             var connectionOptions = services.BuildServiceProvider().GetRequiredService<ConnectionSettings>();
+           
 
             RegisterDatabaseType(services, connectionOptions);
 
@@ -40,12 +47,17 @@ namespace Core.EF.Data.Configuration
             if (connectionOptions.AllowMultipleConnection)
             {
                 services.AddDbContext<DeviceContext>(options =>
-                        databaseTypeInstance.GetContextBuilder(options, connectionOptions, connectionString));
+                {
+                    databaseTypeInstance.GetContextBuilder(options, connectionOptions, connectionString);
+                    options.EnableSensitiveDataLogging();
+                });
                 services.AddScoped<IDbContext, DeviceContext>();
 
 
-                services.AddDbContext<DefaultContext>(options =>
-                     databaseTypeInstance.GetContextBuilder(options, connectionOptions, identityConnection));
+                services.AddDbContext<DefaultContext>(options => {
+                    databaseTypeInstance.GetContextBuilder(options, connectionOptions, identityConnection);
+                    options.EnableSensitiveDataLogging();
+                });
                 services.AddScoped<IDbContext, DefaultContext>();
 
 
@@ -63,15 +75,42 @@ namespace Core.EF.Data.Configuration
                 services.AddScoped<IDbContext, DeviceContext>();
             }
 
+            services.ApplyMigrationsAsync().GetAwaiter().GetResult();
+        }
 
+
+
+        public static async Task ApplyMigrationsAsync(this IServiceCollection services)
+        {
             using var scope = services.BuildServiceProvider().CreateScope();
-            var dbContext = scope.ServiceProvider.GetRequiredService<DeviceContext>();
-            dbContext.Database.SetConnectionString(connectionOptions.DefaultConnection);
-            if (dbContext.Database.GetMigrations().Any())
+            DeviceContext dbContext = scope.ServiceProvider.GetRequiredService<DeviceContext>();
+            Tenant[] tenants = new FileTenantSource().ListTenants();
+            try
             {
-                dbContext.Database.Migrate();
+                foreach (Tenant tenant in tenants)
+                {
+                    DbConnectionStringBuilder connectionBuilder = tenant.BuildConnectionString();
+                    var contextOptionsBuilder = new DbContextOptionsBuilder<DeviceContext>();
+                    dbContext.Database.SetConnectionString(connectionBuilder.ConnectionString);
+
+                    if (dbContext.Database.GetMigrations().Any())
+                        await dbContext.Database.MigrateAsync().ConfigureAwait(false);
+                }
+
+                //foreach (Tenant tenant in tenants)
+                //{
+                //    DbConnectionStringBuilder connectionBuilder = tenant.BuildConnectionString();
+                //    dbContext.Database.SetConnectionString(connectionBuilder.ConnectionString);
+                //    await dbContext.CreateSeederAsync().ConfigureAwait(false);
+                //}
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine(ex.InnerException.Message);
             }
         }
+
+       
 
         /// <summary>
         ///  Configures the assembly where migrations are maintained for this context.

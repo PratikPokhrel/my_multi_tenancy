@@ -9,22 +9,26 @@ using System.Threading.Tasks;
 
 namespace Core.Infrastructure.Tenancy
 {
-   public class TenantProvider:ITenantProvider
+    public class TenantProvider : ITenantProvider
     {
-        private readonly DefaultContext _defaultContext;
+        private readonly ITenantSource _tenantSource;
         private readonly string _host;
+        private static Tenant _tenant;
 
-        public TenantProvider(IHttpContextAccessor accessor,DefaultContext defaultContext)
+        public TenantProvider(IHttpContextAccessor accessor, ITenantSource tenantSource)
         {
-            _defaultContext = defaultContext;
+            _tenantSource = tenantSource;
             _host = accessor.HttpContext.Request.Host.ToString();
+            _tenant = GetCurrentTenant(_host, _tenantSource);
+        }
+        private static Tenant GetCurrentTenant(string _host, ITenantSource _tenantSource)
+        {
+            return _tenantSource.ListTenants()
+                                 .Where(t => t.Identifier.ToLower() == _host.ToLower())
+                                 .FirstOrDefault();
         }
 
-        public Tenant GetTenant()
-        {
-            return _defaultContext.Tenant
-                    .Where(t => t.Identifier.ToLower() == _host.ToLower())
-                    .FirstOrDefault();
-        }
+        public Guid TenantId => _tenant.Id;
+        public Tenant Tenant => _tenant;
     }
 }

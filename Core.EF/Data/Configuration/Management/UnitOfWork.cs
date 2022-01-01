@@ -1,7 +1,17 @@
-﻿using Core.EF.Data.Context;
+﻿using Core.ClientInfo;
+using Core.EF.Data.Configuration.Pg;
+using Core.EF.Data.Context;
+using Core.EF.Data.Extensions;
 using Core.Infrastructure.DataAccess;
+using LazyCache;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.Common;
+using System.Data.SqlClient;
+using System.Threading.Tasks;
 
 namespace Core.EF.Data.Configuration.Management
 {
@@ -11,9 +21,11 @@ namespace Core.EF.Data.Configuration.Management
     public sealed class UnitOfWork : IUnitOfWork
     {
         /// <summary>
-        /// The DbContext
+        /// The context
         /// </summary>
-        private IDbContext dbContext;
+        private IDbContext context;
+        private readonly IClientInfoProvider _clientInfoProvider;
+        private readonly IAppCache _cache;
 
         /// <summary>
         /// The repositories
@@ -24,9 +36,11 @@ namespace Core.EF.Data.Configuration.Management
         /// Initializes a new instance of the <see cref="UnitOfWork" /> class.
         /// </summary>
         /// <param name="contextFactory">The context factory.</param>
-        public UnitOfWork(IContextFactory contextFactory)
+        public UnitOfWork(IContextFactory contextFactory, IClientInfoProvider clientInfoProvider, IAppCache cache)
         {
-            dbContext = contextFactory.DbContext;
+            context = contextFactory.DbContext;
+            _clientInfoProvider = clientInfoProvider;
+            _cache = cache;
         }
 
         /// <summary>
@@ -45,7 +59,7 @@ namespace Core.EF.Data.Configuration.Management
             var type = typeof(TEntity);
             if (!repositories.ContainsKey(type))
             {
-                repositories[type] = new Repository<TEntity>(dbContext);
+                repositories[type] = new Repository<TEntity>(context);
             }
 
             return (IRepository<TEntity>)repositories[type];
@@ -58,7 +72,30 @@ namespace Core.EF.Data.Configuration.Management
         public int Commit()
         {
             // Save changes with the default options
-            return dbContext.SaveChanges();
+            context.ChangeTracker.DetectChanges();
+            context.ChangeTracker.ProcessModification(_clientInfoProvider.UserId);
+            context.ChangeTracker.ProcessDeletion(_clientInfoProvider.UserId);
+            context.ChangeTracker.ProcessCreation(_clientInfoProvider.UserId);
+            return context.SaveChanges();
+        }
+
+        public async Task<int> CommitAsync()
+        {
+            // Save changes with the default options
+            context.ChangeTracker.DetectChanges();
+            context.ChangeTracker.ProcessModification(_clientInfoProvider.UserId);
+            context.ChangeTracker.ProcessDeletion(_clientInfoProvider.UserId);
+            context.ChangeTracker.ProcessCreation(_clientInfoProvider.UserId);
+            return await context.SaveChangesAsync().ConfigureAwait(false);
+        }
+
+
+        public async Task<int> CommitAndRemoveCacheAsync(params string[] cacheKeys)
+        {
+            var result= await CommitAsync().ConfigureAwait(false);
+            foreach (var cacheKey in cacheKeys)
+                _cache.Remove(cacheKey);
+            return result;
         }
 
         /// <summary>
@@ -80,12 +117,56 @@ namespace Core.EF.Data.Configuration.Management
         {
             if (disposing)
             {
-                if (dbContext != null)
+                if (context != null)
                 {
-                    dbContext.Dispose();
-                    dbContext = null;
+                    context.Dispose();
+                    context = null;
                 }
             }
+        }
+
+        public  async Task<T> ExecuteReaderAsync<T>(Func<DbDataReader, T> mapEntities, string exec, SqlParameter[] parameters = null) where T:class
+        {
+            OpenConnection();
+            return await ExectAsync(mapEntities, exec, parameters).ConfigureAwait(false);
+        }
+
+        public void OpenConnection()
+        {
+            var dbContext = context as DeviceContext;
+
+            if (dbContext.Database.GetDbConnection().State == ConnectionState.Closed)
+            {
+                dbContext.Database.OpenConnection();
+            }
+        }
+        private async Task<T> ExectAsync<T>(Func<DbDataReader, T> mapEntities,string exec, SqlParameter[] parameters = null)
+        {
+            var dbcOntext = context as DeviceContext;
+            var command = dbcOntext.Database.GetDbConnection().CreateCommand();
+            command.CommandText = exec;
+
+            if (dbcOntext.Database.CurrentTransaction != null)
+                command.Transaction = dbcOntext.Database.CurrentTransaction.GetDbTransaction();
+
+            if (parameters != null)
+            {
+                foreach (var parameter in parameters)
+                {
+                    command.Parameters.Add(parameter);
+                }
+            }
+
+            using var reader = await command.ExecuteReaderAsync().ConfigureAwait(false);
+
+
+            //NOTE Removed this because data didnot bind in multiset object if 1st result set is null.
+            //TODO But this could result in error.
+            //if (!reader.HasRows)
+            //    while (await reader.NextResultAsync()) { } 
+
+            T data = mapEntities(reader);
+            return data;
         }
     }
 }

@@ -15,6 +15,10 @@ namespace Core.EF.Configs.EntityConfigs
             builder.Property(e => e.Id).HasColumnName("ID");
             builder.Property(e => e.RoleId).HasColumnName("RoleID");
             builder.Property(e => e.ClaimValue).HasColumnName("ClaimValue").HasMaxLength(50);
+
+            builder.HasOne(e=>e.ApplicationRole)
+                   .WithMany(e=>e.ApplicationRoleClaims)
+                   .HasForeignKey(e=>e.RoleId);
         }
     }
 }

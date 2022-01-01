@@ -33,6 +33,34 @@ namespace Core.EF.Migrations.Default
                         .HasColumnType("text")
                         .HasColumnName("concurrency_stamp");
 
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("deleted_by");
+
+                    b.Property<DateTime?>("DeletedOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_on");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<Guid?>("ModifiedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("modified_by");
+
+                    b.Property<DateTime?>("ModifiedOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_on");
+
                     b.Property<string>("Name")
                         .HasColumnType("text")
                         .HasColumnName("name");
@@ -72,6 +100,9 @@ namespace Core.EF.Migrations.Default
                     b.HasKey("Id")
                         .HasName("pk_role_claim");
 
+                    b.HasIndex("RoleId")
+                        .HasDatabaseName("ix_role_claim_role_id");
+
                     b.ToTable("role_claim", "dbo");
                 });
 
@@ -86,13 +117,33 @@ namespace Core.EF.Migrations.Default
                         .HasColumnType("integer")
                         .HasColumnName("access_failed_count");
 
+                    b.Property<Guid>("BranchId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("branch_id");
+
                     b.Property<string>("ConcurrencyStamp")
                         .HasColumnType("text")
                         .HasColumnName("concurrency_stamp");
 
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on");
+
                     b.Property<DateTime?>("DOB")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("dob");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("deleted_by");
+
+                    b.Property<DateTime?>("DeletedOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_on");
 
                     b.Property<string>("Email")
                         .HasColumnType("text")
@@ -112,6 +163,10 @@ namespace Core.EF.Migrations.Default
                         .HasColumnType("text")
                         .HasColumnName("image_url");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -125,6 +180,14 @@ namespace Core.EF.Migrations.Default
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("lockout_end");
+
+                    b.Property<Guid?>("ModifiedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("modified_by");
+
+                    b.Property<DateTime?>("ModifiedOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_on");
 
                     b.Property<string>("NormalizedEmail")
                         .HasColumnType("text")
@@ -149,6 +212,10 @@ namespace Core.EF.Migrations.Default
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("text")
                         .HasColumnName("security_stamp");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
 
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("boolean")
@@ -229,6 +296,9 @@ namespace Core.EF.Migrations.Default
 
                     b.HasKey("UserId", "RoleId")
                         .HasName("pk_user_role");
+
+                    b.HasIndex("RoleId")
+                        .HasDatabaseName("ix_user_role_role_id");
 
                     b.ToTable("user_role", "dbo");
                 });
@@ -322,6 +392,51 @@ namespace Core.EF.Migrations.Default
                             Server = "localhost",
                             User = "postgres"
                         });
+                });
+
+            modelBuilder.Entity("Core.EF.IdentityModels.ApplicationRoleClaim", b =>
+                {
+                    b.HasOne("Core.EF.IdentityModels.ApplicationRole", "ApplicationRole")
+                        .WithMany("ApplicationRoleClaims")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_role_claim_role_role_id");
+
+                    b.Navigation("ApplicationRole");
+                });
+
+            modelBuilder.Entity("Core.EF.IdentityModels.ApplicationUserRole", b =>
+                {
+                    b.HasOne("Core.EF.IdentityModels.ApplicationRole", "ApplicationRole")
+                        .WithMany("ApplicationUserRoles")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_user_role_role_role_id");
+
+                    b.HasOne("Core.EF.IdentityModels.ApplicationUser", "ApplicationUser")
+                        .WithMany("ApplicationUserRoles")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_user_role_user_user_id");
+
+                    b.Navigation("ApplicationRole");
+
+                    b.Navigation("ApplicationUser");
+                });
+
+            modelBuilder.Entity("Core.EF.IdentityModels.ApplicationRole", b =>
+                {
+                    b.Navigation("ApplicationRoleClaims");
+
+                    b.Navigation("ApplicationUserRoles");
+                });
+
+            modelBuilder.Entity("Core.EF.IdentityModels.ApplicationUser", b =>
+                {
+                    b.Navigation("ApplicationUserRoles");
                 });
 #pragma warning restore 612, 618
         }

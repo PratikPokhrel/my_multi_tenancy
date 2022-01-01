@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Core.EF.Data.Context;
+using Core.EF.Data.Extensions;
 using Core.Infrastructure.DataAccess;
 using Microsoft.EntityFrameworkCore;
 
@@ -203,17 +204,11 @@ namespace Core.EF.Data.Configuration.Management
             return await query.Select(select).ToListAsync().ConfigureAwait(false);
         }
 
-
-       
-
-
         /// <inheritdoc />
         public IQueryable<T> FromSql(string query, params object[] parameters)
         {
             return dbSet.FromSqlRaw(query, parameters);
         }
-
-       
 
         public async Task<List<T>> IncludeAsync(IQueryable<T> query, params Expression<Func<T, object>>[] includeProperties)
         {
@@ -224,24 +219,17 @@ namespace Core.EF.Data.Configuration.Management
         }
 
 
-
-
         /// <inheritdoc />
         public async Task<bool> ExistsAsync(Expression<Func<T, bool>> predicate)
         {
             return await dbSet.AnyAsync(predicate).ConfigureAwait(false);
         }
 
-
-      
-
         /// <inheritdoc />
         public void DeleteRange(IEnumerable<T> entities)
         {
             dbSet.RemoveRange(entities);
         }
-
-       
 
         /// <inheritdoc />
         public virtual void UpdateRange(List<T> entities)
@@ -253,7 +241,6 @@ namespace Core.EF.Data.Configuration.Management
         {
             return await dbSet.Where(where).FirstOrDefaultAsync().ConfigureAwait(false);
         }
-
 
         /// <summary>
         /// Gets a table with "no tracking" enabled (EF feature) Use it only when you load record(s) only for read-only operations
@@ -311,13 +298,9 @@ namespace Core.EF.Data.Configuration.Management
             IQueryable<T> query = dbSet;
 
             if (orderBy != null)
-            {
                 return await orderBy(query).ToListAsync();
-            }
             else
-            {
                 return await query.ToListAsync();
-            }
         }
 
 
@@ -330,6 +313,46 @@ namespace Core.EF.Data.Configuration.Management
         public async Task AddRangeAsync(List<T> entities)
         {
             await dbSet.AddRangeAsync(entities).ConfigureAwait(false);
+        }
+
+        public async Task<T> AddAsync(T entity)
+        {
+            await dbSet.AddAsync(entity).ConfigureAwait(false);
+            return entity;
+        }
+
+        public async Task<bool> AnyAsync(Expression<Func<T, bool>> filter = null)
+        {
+            if(filter != null)
+                return await dbSet.AnyAsync(filter).ConfigureAwait(false);
+            else
+                return await dbSet.AnyAsync();
+        }
+
+        public async Task<T> GetAsyncTemp(Expression<Func<T, bool>> predicate, params string[] includesStr)
+        {
+            Func<IQueryable<T>, IQueryable<T>> includes = includesStr == null || !includesStr.Any() ? null : DbContextHelper.GetNavigations<T>(includesStr.ToList());
+            IQueryable<T> query = dbSet;
+            if (includes != null)
+            {
+                query = includes(query);
+            }
+
+            var entity = await query.FirstOrDefaultAsync(predicate);
+            return entity;
+        }
+
+        public async Task<List<T>> GetAsyncTempList(Expression<Func<T, bool>> predicate,params string[] includesStr)
+        {
+            Func<IQueryable<T>, IQueryable<T>> includes =includesStr==null || !includesStr.Any()?null: DbContextHelper.GetNavigations<T>(includesStr.ToList());
+            IQueryable<T> query = dbSet;
+            if (includes != null)
+            {
+                query = includes(query);
+            }
+
+            var entity = await query.Where(predicate).ToListAsync();
+            return entity;
         }
     }
 }

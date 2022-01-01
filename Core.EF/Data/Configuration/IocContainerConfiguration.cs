@@ -1,5 +1,7 @@
 ﻿using Core.EF.Data.Configuration.Management;
+using Core.EF.Managers;
 using Core.Infrastructure.DataAccess;
+using Core.Security.User;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,11 +24,17 @@ namespace Core.EF.Data.Configuration
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-            services.AddTransient<IDataBaseManager, DataBaseManager>();
             services.AddTransient<IContextFactory, ContextFactory>();
             services.AddTransient<IUnitOfWork, UnitOfWork>();
             services.AddTransient<IDefaultUnitOfWork, DefaultUow>();
+            services.AddTransient<IPager, Pager>();
 
+
+
+            //Security
+            services.AddTransient<IApplictionUserManager,ApplicationUserManager>();
+            services.AddTransient<IRoleManager, RoleManager>();
+            services.AddTransient<IRoleClaimManager,RoleClaimManager>();
         }
     }
 }

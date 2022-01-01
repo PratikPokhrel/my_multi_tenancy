@@ -2,6 +2,7 @@
 using Core.Constants;
 using Core.EF.Data;
 using Core.EF.Data.Configuration;
+using Core.Entities;
 using Infrastructure.Settings;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,4 +36,6 @@ namespace Infrastructure.Ioc
                 resolver.GetRequiredService<IOptions<AppSettings>>().Value);
         }
     }
+
+   
 }
