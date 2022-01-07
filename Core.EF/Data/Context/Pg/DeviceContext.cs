@@ -2,6 +2,7 @@
 using Core.EF.Data.Context;
 using Core.EF.Data.Extensions;
 using Core.Entities;
+using Core.Entities.Audit;
 using eixample.Extensions;
 using Microsoft.EntityFrameworkCore;
 using System;

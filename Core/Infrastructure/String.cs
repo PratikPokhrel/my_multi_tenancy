@@ -21,6 +21,15 @@ namespace Core.Infrastructure
         public static List<string> ToStringList(this LocalizedString str) => new() { str.ToString() };
 
 
+        public static string FormatWith(this LocalizedString str,params string[] args)
+        {
+            if (str.ResourceNotFound)
+                return str.Value;
+
+            return string.Format(str.Value, args);
+        }
+    
+
         public static string UppercaseFirst(this string str)
         {
             if (string.IsNullOrEmpty(str))
@@ -30,6 +39,11 @@ namespace Core.Infrastructure
             char[] a = str.ToCharArray();
             a[0] = char.ToUpper(a[0]);
             return new string(a);
+        }
+
+        public static bool ToLowerContains(this string inString,string str)
+        {
+            return inString.ToLower().Contains(str.ToLower());
         }
     }
 }

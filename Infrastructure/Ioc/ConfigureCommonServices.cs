@@ -10,6 +10,10 @@ using Core.Infrastructure.DataAccess;
 using Core.EF.Managers;
 using Infrastructure.Services;
 using Core.Infrastructure;
+using Services.Services.Auth;
+using Services;
+using Core;
+using System.Reflection;
 
 namespace Infrastructure.Ioc
 {
@@ -17,6 +21,8 @@ namespace Infrastructure.Ioc
     {
         public static void ConfigureCommonService(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddAutoMapper(Assembly.GetExecutingAssembly());
+
             services.AddTransient<ITenantProvider, TenantProvider>();
             services.AddTransient<ITenantSource, FileTenantSource>();
             services.AddTransient<IMenuService, MenuService>();
@@ -31,8 +37,11 @@ namespace Infrastructure.Ioc
             //Identity Services
             services.AddTransient<IUserService, UserService>();
             services.AddTransient<IRoleService, RoleService>();
+            services.AddTransient<IAuthService, AuthService>();
             MediateRExtension.ConfigureMediateRService(services);
 
+
+            services.AddTransient<ICommonLocalizer,StringLocalizerCommon>();
             //
             services.AddTransient<IExcelService, ExcelService>();
         }

@@ -13,6 +13,7 @@
   <ItemGroup>
     <PackageReference Include="EPPlus" Version="5.8.4" />
     <PackageReference Include="LazyCache.AspNetCore" Version="2.4.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.ViewFeatures" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="6.0.0" />
@@ -30,6 +31,7 @@
 
   <ItemGroup>
     <Folder Include="Configurations\" />
+    <Folder Include="Settings\" />
   </ItemGroup>
 
 </Project>

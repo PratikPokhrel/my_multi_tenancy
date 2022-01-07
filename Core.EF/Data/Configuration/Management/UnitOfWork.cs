@@ -3,6 +3,7 @@ using Core.EF.Data.Configuration.Pg;
 using Core.EF.Data.Context;
 using Core.EF.Data.Extensions;
 using Core.Infrastructure.DataAccess;
+using Core.Infrastructure.Tenancy;
 using LazyCache;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -26,6 +27,7 @@ namespace Core.EF.Data.Configuration.Management
         private IDbContext context;
         private readonly IClientInfoProvider _clientInfoProvider;
         private readonly IAppCache _cache;
+        private readonly ITenantProvider _tenantProvider;
 
         /// <summary>
         /// The repositories
@@ -36,11 +38,12 @@ namespace Core.EF.Data.Configuration.Management
         /// Initializes a new instance of the <see cref="UnitOfWork" /> class.
         /// </summary>
         /// <param name="contextFactory">The context factory.</param>
-        public UnitOfWork(IContextFactory contextFactory, IClientInfoProvider clientInfoProvider, IAppCache cache)
+        public UnitOfWork(IContextFactory contextFactory, IClientInfoProvider clientInfoProvider,ITenantProvider tenantProvider, IAppCache cache)
         {
             context = contextFactory.DbContext;
             _clientInfoProvider = clientInfoProvider;
             _cache = cache;
+            _tenantProvider = tenantProvider;
         }
 
         /// <summary>
@@ -75,7 +78,7 @@ namespace Core.EF.Data.Configuration.Management
             context.ChangeTracker.DetectChanges();
             context.ChangeTracker.ProcessModification(_clientInfoProvider.UserId);
             context.ChangeTracker.ProcessDeletion(_clientInfoProvider.UserId);
-            context.ChangeTracker.ProcessCreation(_clientInfoProvider.UserId);
+            context.ChangeTracker.ProcessCreation(_clientInfoProvider.UserId,_tenantProvider.TenantId);
             return context.SaveChanges();
         }
 
@@ -85,7 +88,7 @@ namespace Core.EF.Data.Configuration.Management
             context.ChangeTracker.DetectChanges();
             context.ChangeTracker.ProcessModification(_clientInfoProvider.UserId);
             context.ChangeTracker.ProcessDeletion(_clientInfoProvider.UserId);
-            context.ChangeTracker.ProcessCreation(_clientInfoProvider.UserId);
+            context.ChangeTracker.ProcessCreation(_clientInfoProvider.UserId, _tenantProvider.TenantId);
             return await context.SaveChangesAsync().ConfigureAwait(false);
         }
 

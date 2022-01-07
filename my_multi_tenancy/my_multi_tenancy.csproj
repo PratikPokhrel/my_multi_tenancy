@@ -3,9 +3,13 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <DocumentationFile>C:\Users\LEGION\source\repos\my_multi_tenancy\my_multi_tenancy\bin\Debug\net6.0\my_multi_tenancy.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="10.1.1" />
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.1" />
     <PackageReference Include="MediatR" Version="9.0.0" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.0">
@@ -28,6 +32,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Controllers\Identity\Dtos\" />
     <Folder Include="Controllers\Security\Dtos\Rqst\" />
   </ItemGroup>
 

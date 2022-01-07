@@ -1,7 +1,5 @@
-using Core.EF.Data.Configuration.Pg;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -9,14 +7,14 @@ using Microsoft.OpenApi.Models;
 using my_multi_tenancy.Data.SwaggerConfig;
 using System;
 using System.IO;
-using System.Linq;
 using System.Reflection;
+using Infrastructure.Filters;
 using Infrastructure.Ioc;
 using my_multi_tenancy.FIlters;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Infrastructure.Middlewares;
-using MediatR;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using System.Collections.Generic;
 
 namespace my_multi_tenancy
 {
@@ -37,14 +35,14 @@ namespace my_multi_tenancy
             {
                 opt.Filters.Add(typeof(ModelStateValidatorAttribute));
             });
-            services.AddSingleton<IActionContextAccessor,ActionContextAccessor>();
+            services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
             services.AddScoped<IsUserInTenant>();
-            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-            .AddCookie();
+            //services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
 
             services.ConfigureSwagger();
             //services.AddAndMigrateTenantDatabases();
             services.ConfigureAppServices(Configuration);
+            services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
         }
 
@@ -64,7 +62,7 @@ namespace my_multi_tenancy
             app.UseAuthentication();
             app.UseAuthorization();
 
-           
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
@@ -76,11 +74,11 @@ namespace my_multi_tenancy
         public static void ConfigureSwagger(this IServiceCollection services)
         {
             // Register the Swagger generator, defining 1 or more Swagger documents
-          
+
             services.AddSwaggerGen(c =>
             {
-            //https://thecodebuzz.com/jwt-authorization-token-swagger-open-api-asp-net-core-3-0/
-            c.OperationFilter<AddSwaggerHeaderParameter>();
+                //https://thecodebuzz.com/jwt-authorization-token-swagger-open-api-asp-net-core-3-0/
+                c.OperationFilter<AddSwaggerHeaderParameter>();
                 c.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Title = "REST services for accounts.",
@@ -93,11 +91,37 @@ namespace my_multi_tenancy
                         Url = new Uri("https://rigonepal.com/")
                     }
                 });
+
+
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Description = "JWT Authorization header using the Bearer scheme (Example: 'Bearer 12345abcdef')",
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer"
+                });
+
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                    },
+                    Array.Empty<string>()
+                }
+            });
+
                 var xmlCommentsFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlCommentsFullPath = Path.Combine(AppContext.BaseDirectory, xmlCommentsFile);
-                //c.IncludeXmlComments(xmlCommentsFullPath);
+                c.IncludeXmlComments(xmlCommentsFullPath);
             });
         }
-        
+
     }
 }

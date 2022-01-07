@@ -6,5 +6,6 @@ namespace Services.Services
     public interface IResponseLogService
     {
        Task AddAsync(object logs,string actionName,string apiName);
+       Task<IEnumerable<ResponseLogResp>> GetAllAsync();
     }
 }

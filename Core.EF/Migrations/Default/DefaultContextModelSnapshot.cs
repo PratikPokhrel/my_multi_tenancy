@@ -69,8 +69,19 @@ namespace Core.EF.Migrations.Default
                         .HasColumnType("text")
                         .HasColumnName("normalized_name");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
                     b.HasKey("Id")
                         .HasName("pk_role");
+
+                    b.HasIndex("NormalizedName")
+                        .HasDatabaseName("ix_role_normalized_name");
+
+                    b.HasIndex("NormalizedName", "TenantId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_role_normalized_name_tenant_id");
 
                     b.ToTable("role", "dbo");
                 });
@@ -162,6 +173,12 @@ namespace Core.EF.Migrations.Default
                     b.Property<string>("ImageUrl")
                         .HasColumnType("text")
                         .HasColumnName("image_url");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("is_active");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")

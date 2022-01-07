@@ -1,0 +1,32 @@
+[
+  {
+    "Id": "5249f843-d4a3-4d9c-b0ff-bc1a9d3cd5e1",
+    "Identifier": "verisk:5001",
+    "Server": "localhost",
+    "User": "postgres",
+    "Password": "Admin",
+    "Port": "5432",
+    "Database": "verisk_db",
+    "DatabaseType": 1
+  },
+  {
+    "Id": "6249f843-d4a3-4d9c-b0ff-bc1a9d3cd5e1",
+    "Identifier": "127.0.0.1:5001",
+    "Server": "localhost",
+    "User": "postgres",
+    "Password": "Admin",
+    "Port": "5432",
+    "Database": "local_db",
+    "DatabaseType": 1
+  },
+  {
+    "Id": "4249f843-d4a3-4d9c-b0ff-bc1a9d3cd5e1",
+    "Identifier": "rigo:5001",
+    "Server": "localhost",
+    "User": "postgres",
+    "Password": "Admin",
+    "Port": "5432",
+    "Database": "local_db_2",
+    "DatabaseType": 1
+  }
+]
