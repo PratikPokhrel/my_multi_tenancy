@@ -20,6 +20,7 @@ namespace Services.Services.Dtos.Resp
                 Order = e.Order,
                 ParentId = e.ParentId,
                 Icon = e.Icon,
+                Path = e.Path,
                 SubMenus = ToResp(e.SubMenus).ToList()
             };
         }
@@ -32,7 +33,7 @@ namespace Services.Services.Dtos.Resp
 
         public static Menu ToEntity(this MenuRqst e)
         {
-            return new Menu { Id = e.Id, IsPaarent = e.IsPaarent, Name = e.Name, Order = e.Order,Icon=e.Icon, ParentId = e.ParentId};
+            return new Menu { Id = e.Id, IsPaarent = e.IsPaarent, Name = e.Name, Order = e.Order, Icon=e.Icon, ParentId = e.ParentId};
         }
     }
 }

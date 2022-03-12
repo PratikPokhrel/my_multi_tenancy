@@ -17,6 +17,7 @@ namespace Core.EF.Data.Extensions
             {
                 var currentTableName = modelBuilder.Entity(entity.Name).Metadata.GetTableName();
                 var schema = modelBuilder.Entity(entity.Name).Metadata.GetSchema();
+               
                 modelBuilder.Entity(entity.Name).ToTable(currentTableName.ToSnakeCase(), schema.ToSnakeCase());
 
                 foreach (var property in entity.GetProperties())

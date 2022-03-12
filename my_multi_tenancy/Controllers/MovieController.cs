@@ -15,6 +15,9 @@ using System.Threading.Tasks;
 
 namespace my_multi_tenancy.Controllers
 {
+    /// <summary>
+    /// Movie Controller
+    /// </summary>
     [Route("api/movies")]
     public class MovieController : BaseApiController
     {
@@ -31,15 +34,15 @@ namespace my_multi_tenancy.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Menu>>> Get()
         {
-            return Ok(await _uow.GetRepository<Menu>().GetAllAsync().ConfigureAwait(false));
+            return AppOk(await _uow.GetRepository<Menu>().GetAllAsync().ConfigureAwait(false));
         }
 
         [HttpPost]
         public async Task<ActionResult<int>> Post([FromBody] Movie movie)
         {
             var res = _uow.GetRepository<Movie>().Add(movie);
-           await _uow.CommitAsync().ConfigureAwait(false);
-            return Ok(res);
+            await _uow.CommitAsync().ConfigureAwait(false);
+            return AppOk(res);
         }
 
 
@@ -54,8 +57,6 @@ namespace my_multi_tenancy.Controllers
             var query = ex.ToQueryString();
             var listed = ex.ToList();
         }
-
-       
 
     }
 }

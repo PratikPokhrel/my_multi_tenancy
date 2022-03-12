@@ -15,6 +15,7 @@ using Infrastructure.Middlewares;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Collections.Generic;
+using TM.Services.Ioc;
 
 namespace my_multi_tenancy
 {
@@ -35,6 +36,7 @@ namespace my_multi_tenancy
             {
                 opt.Filters.Add(typeof(ModelStateValidatorAttribute));
             });
+            services.AddCors();
             services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
             services.AddScoped<IsUserInTenant>();
             //services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
@@ -43,6 +45,7 @@ namespace my_multi_tenancy
             //services.AddAndMigrateTenantDatabases();
             services.ConfigureAppServices(Configuration);
             services.AddAutoMapper(Assembly.GetExecutingAssembly());
+            services.ConfigureTMServices();
 
         }
 
@@ -55,6 +58,7 @@ namespace my_multi_tenancy
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "my_multi_tenancy v1"));
             }
+            app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:3000"));
             //app.ApplyUserKeyValidation();
             app.UseHttpsRedirection();
             app.UseMiddleware<ExceptionHandleMiddleware>();

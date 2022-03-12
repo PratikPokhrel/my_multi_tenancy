@@ -24,6 +24,7 @@ namespace Services.Services
         public int Id { get; set; }
         public string Name { get; set; }
         public int Order { get; set; }
+        public string Path { get; set; }
         public bool IsPaarent { get; set; }
         public int ParentId { get; set; }
         public bool IsOldLink { get; set; }

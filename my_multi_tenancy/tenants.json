@@ -6,7 +6,7 @@
     "User": "postgres",
     "Password": "Admin",
     "Port": "5432",
-    "Database": "verisk_db",
+    "Database": "verisk_dbb",
     "DatabaseType": 1
   },
   {
@@ -16,7 +16,7 @@
     "User": "postgres",
     "Password": "Admin",
     "Port": "5432",
-    "Database": "local_db",
+    "Database": "local_dbb",
     "DatabaseType": 1
   },
   {
@@ -26,7 +26,7 @@
     "User": "postgres",
     "Password": "Admin",
     "Port": "5432",
-    "Database": "local_db_2",
+    "Database": "local_dbb_2",
     "DatabaseType": 1
   }
 ]

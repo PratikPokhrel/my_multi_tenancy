@@ -63,7 +63,8 @@ namespace Infrastructure.Ioc
                             {
                                 c.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
                                 c.Response.ContentType = "application/json";
-                                var result = JsonConvert.SerializeObject("The Token is expired.");
+                                var resResult = Result<string>.Fail("The Token is expired.");
+                                var result = JsonConvert.SerializeObject(resResult);
                                 return c.Response.WriteAsync(result);
                             }
                             else

@@ -121,6 +121,7 @@ namespace Core.EF.Data.Context
     {
         Pg = 0,
         Account = 1,
-        HM = 2
+        HM = 2,
+        TM=3
     }
 }

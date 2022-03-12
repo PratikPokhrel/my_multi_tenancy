@@ -3,6 +3,7 @@ using Core.Dto.Security;
 using Core.Infrastructure.Pagination;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -10,6 +11,7 @@ namespace Core.Security.User
 {
     public interface IApplictionUserManager
     {
+        IQueryable<AppUser> GetAll();
         Task<bool> IsUserInTenantAsync(Guid userId,Guid tenantId);
         Task<PaginatedResult<AppUser>> GetAllUsers(string searchText,Guid? roleId, int page, int pageSize);
         Task<Result<AppUser>> FindByIdAsync(Guid id);

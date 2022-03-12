@@ -226,6 +226,10 @@ namespace Core.EF.Migrations.Default
                         .HasColumnType("boolean")
                         .HasColumnName("phone_number_confirmed");
 
+                    b.Property<string>("ProfilePictureDataUrl")
+                        .HasColumnType("text")
+                        .HasColumnName("profile_picture_data_url");
+
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("text")
                         .HasColumnName("security_stamp");
@@ -345,6 +349,51 @@ namespace Core.EF.Migrations.Default
                     b.ToTable("user_token", "dbo");
                 });
 
+            modelBuilder.Entity("Core.Entities.Chats.ChatHistory<Core.EF.IdentityModels.ApplicationUser>", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_date");
+
+                    b.Property<string>("FromUserId")
+                        .HasColumnType("text")
+                        .HasColumnName("from_user_id");
+
+                    b.Property<Guid?>("FromUserId1")
+                        .HasColumnType("uuid")
+                        .HasColumnName("from_user_id1");
+
+                    b.Property<string>("Message")
+                        .HasColumnType("text")
+                        .HasColumnName("message");
+
+                    b.Property<string>("ToUserId")
+                        .HasColumnType("text")
+                        .HasColumnName("to_user_id");
+
+                    b.Property<Guid?>("ToUserId1")
+                        .HasColumnType("uuid")
+                        .HasColumnName("to_user_id1");
+
+                    b.HasKey("Id")
+                        .HasName("pk_chat_histories");
+
+                    b.HasIndex("FromUserId1")
+                        .HasDatabaseName("ix_chat_histories_from_user_id1");
+
+                    b.HasIndex("ToUserId1")
+                        .HasDatabaseName("ix_chat_histories_to_user_id1");
+
+                    b.ToTable("chat_histories", (string)null);
+                });
+
             modelBuilder.Entity("Core.Entities.Tenant", b =>
                 {
                     b.Property<Guid>("Id")
@@ -442,6 +491,23 @@ namespace Core.EF.Migrations.Default
                     b.Navigation("ApplicationRole");
 
                     b.Navigation("ApplicationUser");
+                });
+
+            modelBuilder.Entity("Core.Entities.Chats.ChatHistory<Core.EF.IdentityModels.ApplicationUser>", b =>
+                {
+                    b.HasOne("Core.EF.IdentityModels.ApplicationUser", "FromUser")
+                        .WithMany()
+                        .HasForeignKey("FromUserId1")
+                        .HasConstraintName("fk_chat_histories_user_from_user_id1");
+
+                    b.HasOne("Core.EF.IdentityModels.ApplicationUser", "ToUser")
+                        .WithMany()
+                        .HasForeignKey("ToUserId1")
+                        .HasConstraintName("fk_chat_histories_user_to_user_id1");
+
+                    b.Navigation("FromUser");
+
+                    b.Navigation("ToUser");
                 });
 
             modelBuilder.Entity("Core.EF.IdentityModels.ApplicationRole", b =>

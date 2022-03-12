@@ -1,5 +1,6 @@
 ﻿using Core.Dto;
 using Core.Dto.Security;
+using Core.EF.Data;
 using Core.EF.IdentityModels;
 using Core.EF.Managers.IdentityExtensions;
 using Core.Infrastructure.DataAccess;
@@ -180,6 +181,11 @@ namespace Core.EF.Managers
             return roles;
         }
 
+        public IQueryable<AppUser> GetAll()
+        {
+            return _userManager.Users.Select(e=>e.ToAppUser()).AsQueryable();
+        }
+
         #endregion
 
         #region "User Selector expression"
@@ -198,5 +204,12 @@ namespace Core.EF.Managers
                                           .ToList(),
         };
         #endregion
+    }
+
+    public class DTOO
+    {
+        public Guid Id { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
     }
 }

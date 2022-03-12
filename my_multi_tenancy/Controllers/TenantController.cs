@@ -7,18 +7,30 @@ using System.Threading.Tasks;
 
 namespace my_multi_tenancy.Controllers
 {
+    /// <summary>
+    /// Tenant Controller
+    /// </summary>
     [Route("api/tenants")]
     public class TenantController : Controller
     {
         private readonly ITenantService _tenantService;
         private readonly IMovieService _movieService;
 
+        /// <summary>
+        /// Ctor
+        /// </summary>
+        /// <param name="tenantService"></param>
+        /// <param name="movieService"></param>
         public TenantController(ITenantService tenantService, IMovieService movieService)
         {
             _tenantService = tenantService;
             _movieService = movieService;
         }
 
+        /// <summary>
+        /// Get all tenants
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Tenant>>> GetAll()
         {

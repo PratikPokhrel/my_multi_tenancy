@@ -29,6 +29,7 @@
     <ProjectReference Include="..\Category.API\Category.API.csproj" />
     <ProjectReference Include="..\Core\Core.csproj" />
     <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
+    <ProjectReference Include="..\TM.API\TM.API.csproj" />
   </ItemGroup>
 
   <ItemGroup>

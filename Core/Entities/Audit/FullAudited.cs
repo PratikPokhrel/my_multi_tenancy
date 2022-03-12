@@ -1,10 +1,12 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace Core.Entities.Audit
 {
     public abstract class FullAudited<T> : IFullAudited<T>
     {
+        [Key]
         public T Id { get ; set ; }
         [JsonIgnore]
         public Guid CreatedBy { get ; set ; }

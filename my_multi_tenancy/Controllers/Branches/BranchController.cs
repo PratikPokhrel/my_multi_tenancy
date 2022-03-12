@@ -8,10 +8,10 @@ using my_multi_tenancy.Controllers.Branches.Dtos;
 using my_multi_tenancy.Controllers.Branches.Dtos.Resp;
 using Services.Services;
 using Services.Services.Branches.Resp;
-using System.Linq;
 using Infrastructure.Filters;
 using AutoMapper;
 using my_multi_tenancy.Controllers.Branches.Dtos.Rqst;
+using Microsoft.AspNetCore.Authorization;
 
 namespace my_multi_tenancy.Controllers.Branches
 {
@@ -19,6 +19,7 @@ namespace my_multi_tenancy.Controllers.Branches
     /// Branch Api
     /// </summary>
     [Route("api/branches")]
+    [Authorize]
     public class BranchController : BaseApiController
     {
         #region Ctor & Properties

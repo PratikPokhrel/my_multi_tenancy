@@ -13,7 +13,6 @@ using System.Threading.Tasks;
 
 namespace my_multi_tenancy.Controllers.Security
 {
-    [Authorize]
     [Route("api/roles")]
     public class RoleController : BaseApiController
     {

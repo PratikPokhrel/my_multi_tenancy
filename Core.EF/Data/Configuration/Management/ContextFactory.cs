@@ -30,7 +30,7 @@ namespace Core.EF.Data.Configuration.Management
         /// <param name="httpContentAccessor">The HTTP content accessor.</param>
         /// <param name="connectionOptions">The connection options.</param>
         /// <param name="dataBaseManager">The data base manager.</param>
-        public ContextFactory(IHttpContextAccessor httpContentAccessor,ITenantProvider tenantProvider, ConnectionSettings connectionOptions)
+        public ContextFactory(IHttpContextAccessor httpContentAccessor, ITenantProvider tenantProvider, ConnectionSettings connectionOptions)
         {
             httpContext = httpContentAccessor.HttpContext;
             this.connectionOptions = connectionOptions;
@@ -48,7 +48,7 @@ namespace Core.EF.Data.Configuration.Management
             get
             {
                 ValidateHttpContext();
-                Tenant tenant= _tenantProvider.Tenant;
+                Tenant tenant = _tenantProvider.Tenant;
                 return tenant ?? throw new ArgumentNullException("Not a valid tenant");
             }
         }
@@ -66,9 +66,9 @@ namespace Core.EF.Data.Configuration.Management
             {
                 DbConnectionStringBuilder connectionBuilder = tenant.BuildConnectionString();
                 // 4. Create MSSQL DbContextOptionsBuilder with new Database name
-                var contextOptionsBuilder = new DbContextOptionsBuilder<AccountContext>();
+                var contextOptionsBuilder = new DbContextOptionsBuilder<DeviceContext>();
                 dbType.SetConnectionString(contextOptionsBuilder, connectionBuilder.ConnectionString);
-                return new AccountContext(contextOptionsBuilder.Options);
+                return new DeviceContext(contextOptionsBuilder.Options);
             }
             else if (tenant.DatabaseType == (int)DatabaseType.Postgres)
             {

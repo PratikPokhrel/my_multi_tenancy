@@ -52,16 +52,18 @@ namespace Services.Services
 
         public async Task<IEnumerable<MenuResp>> GetMenusAsync()
         {
-            var temm=await _unitOfWork.GetRepository<Category>().GetAsyncTempList(e=>true, "Department",
-                                                                                           "Department.SubDepartment",
-                                                                                           "CategoryItem", 
-                                                                                           "CategoryItem.CategoryItemChildrens");
-            var _catRepo = _unitOfWork.GetRepository<Category>();
-            var adasd= _unitOfWork.GetRepository<Category>()
-                                       .GetAll(1,20,e=>e.CategoryItem).ToList();
-            IEnumerable<Menu> menus = await _menuRepo
-                                                       .GetAllAsync(where:e=>true,asNoTracking:true)
-                                                       .ConfigureAwait(false);
+            //var temm=await _unitOfWork.GetRepository<Category>().GetAsyncTempList(e=>true, "Department",
+            //                                                                               "Department.SubDepartment",
+            //                                                                               "CategoryItem", 
+            //                                                                               "CategoryItem.CategoryItemChildrens");
+            //var _catRepo = _unitOfWork.GetRepository<Category>();
+            //var adasd= _unitOfWork.GetRepository<Category>()
+            //                           .GetAll(1,20,e=>e.CategoryItem).ToList();
+
+            var aabc = _menuRepo.TableNoTraking
+                .Where(e => !_menuRepo.TableNoTraking.Any()).ToList();
+            IEnumerable<Menu> menus = await _menuRepo.GetAllAsync(where:e=>true,asNoTracking:true)
+                                                     .ConfigureAwait(false);
             IEnumerable<Menu> hierarchy = menus
                                               .Where(c => c.ParentId == 0)
                                               .Select(c => new Menu()
@@ -69,6 +71,7 @@ namespace Services.Services
                                                   Id = c.Id,
                                                   Name = c.Name,
                                                   ParentId = c.ParentId,
+                                                  Path=c.Path,
                                                   SubMenus = GetChildren(menus, c.Id)
                                               });
 

@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Core.EF.Data.Context.Default;
 using Microsoft.AspNetCore.Identity;
 using Core.EF.Managers;
+using Core.EF.Data.Configuration.Pg;
 
 namespace Infrastructure.Ioc
 {

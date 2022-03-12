@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Identity;
 using Core.Entities.Audit;
+using Core.Entities.Chats;
 
 namespace Core.EF.IdentityModels
 {
-    public class ApplicationUser : IdentityUser<Guid>,IFullAudited<Guid>,IHasTenant
+    public class ApplicationUser : IdentityUser<Guid>,IFullAudited<Guid>,IHasTenant,IChatUser
     {
         public ApplicationUser()
         {
@@ -19,6 +20,9 @@ namespace Core.EF.IdentityModels
         public Guid TenantId { get; set; }
         public Guid BranchId { get; set; }
         public bool IsActive { get; set; }
+        
+         public string ProfilePictureDataUrl { get; set; }
+
 
         public Guid CreatedBy { get; set; }
         public DateTime CreatedOn { get; set; }
